@@ -1,0 +1,13 @@
+@import "~bootstrap/scss/bootstrap";
+@import "font";
+@import "normalize";
+@import "global";
+@import "vendor";
+
+#__next, #app-wrapper, .app {
+  width: 100%;
+}
+
+#app-wrapper {
+  position: relative;
+}
