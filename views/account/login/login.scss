@@ -20,6 +20,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
+      
+      #form-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+      }
 
       h2 {
         margin-bottom: 40px;
@@ -27,9 +35,10 @@
 
       .custom-form-control {
         margin-bottom: 20px;
+        position: relative;
       }
       
-      .btn {
+      .btn#login-btn {
         margin-top: 40px;
         margin-bottom: 20px;
       }
@@ -50,7 +59,7 @@
       form {
         padding: 50px 15px;
 
-        .btn {
+        .btn#login-btn {
           width: 100%;
         }
       }

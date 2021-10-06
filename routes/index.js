@@ -1,5 +1,5 @@
 import Routes from "./Routes";
 import AppRoutes from "./AppRoutes";
-import DashboardRoutes from "./DashboardRoutes";
+import AuthAppRoutes from "./AuthAppRoutes";
 
-export { Routes, AppRoutes, DashboardRoutes };
+export { Routes, AppRoutes, AuthAppRoutes };

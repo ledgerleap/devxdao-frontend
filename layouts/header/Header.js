@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import * as Icon from "react-feather";
 import { Link } from "react-router-dom";
+import { Fade } from "react-reveal";
 import Helper from "../../utils/Helper";
 import { saveUser } from "../../redux/actions";
 
@@ -35,31 +36,36 @@ class Header extends Component {
     return (
       <header className={className}>
         <div className="custom-container">
-          <Link to="/" id="top-logo">
-            <img src={logoImage} alt="" className="img-block" />
-          </Link>
+          <Fade distance={"20px"} bottom duration={500} delay={400}>
+            <Link to="/" id="top-logo">
+              <img src={logoImage} alt="" className="img-block" />
+            </Link>
+          </Fade>
 
-          <ul>
-            {authUser && authUser.id ? (
-              <li>
-                <a onClick={this.logout}>
-                  <span>
-                    <Icon.LogOut color={iconColor} size={14} />
-                  </span>
-                  <label>Sign Out</label>
-                </a>
-              </li>
-            ) : (
-              <li>
-                <Link to="/login">
-                  <span>
-                    <Icon.User color={iconColor} size={14} />
-                  </span>
-                  <label>Sign In</label>
-                </Link>
-              </li>
-            )}
-          </ul>
+          <Fade distance={"20px"} bottom duration={500} delay={400}>
+            <ul>
+              {authUser && authUser.id ? (
+                <li>
+                  <a onClick={this.logout}>
+                    <span>
+                      <Icon.LogOut color={iconColor} size={14} />
+                    </span>
+                    <label>Sign Out</label>
+                  </a>
+                </li>
+              ) : (
+                <li>
+                  <Link to="/login">
+                    {/*<img src="/user-icon.png" alt="" /> */}
+                    <span>
+                      <Icon.User color={iconColor} size={14} />
+                    </span>
+                    <label>Sign In</label>
+                  </Link>
+                </li>
+              )}
+            </ul>
+          </Fade>
         </div>
       </header>
     );

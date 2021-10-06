@@ -3,6 +3,8 @@
 @import "normalize";
 @import "global";
 @import "vendor";
+@import "scheme/light";
+@import "scheme/metal";
 
 #__next, #app-wrapper, .app {
   width: 100%;

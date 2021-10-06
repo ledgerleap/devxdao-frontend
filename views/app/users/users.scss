@@ -1,0 +1,10 @@
+#app-users-page {
+  display: flex;
+  flex-direction: column;
+
+  #app-users-page-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+  }
+}

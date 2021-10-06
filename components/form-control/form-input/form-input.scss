@@ -48,11 +48,11 @@
 }
 
 .custom-form-control.underlined::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.5);
 }
 .custom-form-control.underlined:-ms-input-placeholder { /* Internet Explorer 10-11 */
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.5);
 }
 .custom-form-control.underlined::-ms-input-placeholder { /* Microsoft Edge */
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.5);
 }

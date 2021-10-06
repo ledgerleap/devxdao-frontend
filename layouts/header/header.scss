@@ -13,6 +13,7 @@ header {
 
     #top-logo {
       width: 150px;
+      display: block;
     }
 
     ul {
@@ -56,6 +57,10 @@ header {
           > a {
             > span {
               background-color: #7137ce;
+            }
+
+            label {
+              color: #7137ce;
             }
           }
         }

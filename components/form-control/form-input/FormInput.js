@@ -10,6 +10,7 @@ export default function FormInput({
   align,
   name,
   underlined,
+  ...props
 }) {
   const onChangeHandler = onChange || (() => {});
   let className =
@@ -30,6 +31,7 @@ export default function FormInput({
         autoComplete="off"
         autoSave="off"
         onChange={onChangeHandler}
+        {...props}
       />
     );
   }
@@ -43,6 +45,7 @@ export default function FormInput({
       placeholder={placeholder || ""}
       autoComplete="off"
       autoSave="off"
+      {...props}
       onChange={onChangeHandler}
     />
   );

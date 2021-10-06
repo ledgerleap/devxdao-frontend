@@ -6,7 +6,7 @@ import "./global-canvas.scss";
 export default function GlobalCanvas() {
   return (
     <div className="global-canvas">
-      <DotLoader color="#0089D7" />
+      <DotLoader color="#7137ce" />
     </div>
   );
 }

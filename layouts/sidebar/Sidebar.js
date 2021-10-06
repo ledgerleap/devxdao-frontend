@@ -1,48 +1,361 @@
-import React, { Component } from "react";
+/* eslint-disable prettier/prettier */
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import * as Icon from "react-feather";
+import { Fade } from "react-reveal";
 import Helper from "../../utils/Helper";
-import { saveUser, hideSidebar } from "../../redux/actions";
+import { saveUser, hideSidebar, setActiveModal } from "../../redux/actions";
+import IconAccounting from "../../public/icons/accounting.svg";
+import IconMilestone from "../../public/icons/milestone.svg";
+import IconTeam from "../../public/icons/team.svg";
+import IconSurvey from "../../public/icons/survey.svg";
+import IconInfo from "../../public/icons/info.svg";
+import IconVA from "../../public/icons/va.svg";
 
 import "./sidebar.scss";
 
-const mapStateToProps = () => {
-  return {};
+const mapStateToProps = (state) => {
+  return {
+    theme: state.global.theme,
+  };
 };
 
 class Sidebar extends Component {
   constructor(props) {
     super(props);
 
-    this.tabs = [
-      {
-        link: "/dashboard",
-        label: "Admin Dashboard",
-        tabs: [
-          {
-            link: "/dashboard",
-            label: "Menu Item 1",
-            icon: <Icon.FileText size={16} color="#ffffff" />,
-          },
-          {
-            link: "/dashboard",
-            label: "Menu Item 2",
-            icon: <Icon.CheckSquare size={16} color="#ffffff" />,
-          },
-          {
-            link: "/dashboard",
-            label: "Menu Item 3",
-            icon: <Icon.Plus size={16} color="#ffffff" />,
-          },
-          {
-            link: "/dashboard",
-            label: "Settings",
-            icon: <Icon.Settings size={16} color="#ffffff" />,
-          },
-        ],
-      },
-    ];
+    this.state = {
+      tabs: [],
+    };
+  }
+
+  componentDidMount() {
+    const { authUser } = this.props;
+    if (authUser && authUser.id) this.setTabs();
+  }
+
+  checkPermission(permissions, type) {
+    return !!permissions?.find((x) => x.name === type)?.is_permission;
+  }
+
+  setTabs() {
+    const { authUser } = this.props;
+    let tabs = [];
+    if (authUser.is_admin) {
+      // Admin Tabs
+      tabs = [
+        {
+          link: "/app",
+          label: "Dashboard",
+          tabs: [
+            {
+              link: "/app/discussions",
+              label: "Discussions",
+              icon: <Icon.FileText size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/votes",
+              label: "Votes",
+              icon: <Icon.CheckSquare size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/proposals",
+              label: "Proposals",
+              icon: <Icon.FolderPlus size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/all-proposals",
+              label: "All Proposals",
+              icon: <Icon.Briefcase size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/settings",
+              label: "Settings",
+              icon: <Icon.Settings size={20} />,
+              isShow: true,
+            },
+          ],
+        },
+        {
+          link: "",
+          label: "Admin Tools",
+          tabs: [
+            /*
+            {
+              link: "/app/pre-register",
+              label: "Pre-Register",
+              icon: <Icon.UserCheck size={20} />,
+            },
+            */
+            {
+              link: "/app/users",
+              label: "Portal Users",
+              icon: <Icon.Users size={20} />,
+              isShow:
+                authUser.is_super_admin ||
+                (!authUser.is_super_admin &&
+                  this.checkPermission(authUser.permissions, "users")),
+            },
+            {
+              link: "/app/va-directory",
+              label: "VA Directory",
+              icon: <IconVA size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/new-proposals",
+              label: "New Proposals",
+              icon: <Icon.Plus size={20} />,
+              isShow:
+                authUser.is_super_admin ||
+                (!authUser.is_super_admin &&
+                  this.checkPermission(authUser.permissions, "new_proposal")),
+            },
+            {
+              link: "/app/to-formal",
+              label: "Move to Formal",
+              icon: <Icon.LogIn size={20} />,
+              isShow:
+                authUser.is_super_admin ||
+                (!authUser.is_super_admin &&
+                  this.checkPermission(authUser.permissions, "move_to_formal")),
+            },
+            {
+              link: "/app/grants",
+              label: "Grants",
+              icon: <Icon.List size={20} />,
+              isShow:
+                authUser.is_super_admin ||
+                (!authUser.is_super_admin &&
+                  this.checkPermission(authUser.permissions, "grants")),
+            },
+            {
+              link: "/app/milestones",
+              label: "Milestones",
+              icon: <IconMilestone size={20} />,
+              isShow:
+                authUser.is_super_admin ||
+                (!authUser.is_super_admin &&
+                  this.checkPermission(authUser.permissions, "milestones")),
+            },
+            {
+              link: "/app/surveys",
+              label: "Surveys",
+              icon: <IconSurvey size={20} />,
+              isShow:
+                authUser.is_super_admin ||
+                (!authUser.is_super_admin &&
+                  this.checkPermission(authUser.permissions, "surveys")),
+            },
+            {
+              link: "/app/global-settings",
+              label: "Global Settings",
+              icon: <Icon.Globe size={20} />,
+              isShow:
+                authUser.is_super_admin ||
+                (!authUser.is_super_admin &&
+                  this.checkPermission(
+                    authUser.permissions,
+                    "global_settings"
+                  )),
+            },
+            {
+              link: "/app/admin-team",
+              label: "Teams",
+              icon: <IconTeam size={20} />,
+              isShow: authUser.is_super_admin,
+            },
+            {
+              link: "/app/accounting",
+              label: "Accounting",
+              icon: <IconAccounting size={20} />,
+              isShow:
+                authUser.is_super_admin ||
+                (!authUser.is_super_admin &&
+                  this.checkPermission(authUser.permissions, "accounting")),
+            },
+            {
+              link: "/app/emailer",
+              label: "Emailer",
+              icon: <Icon.AtSign size={20} />,
+              isShow:
+                authUser.is_super_admin ||
+                (!authUser.is_super_admin &&
+                  this.checkPermission(authUser.permissions, "emailer")),
+            },
+            {
+              link: "/app/scheme",
+              label: "Color Scheme",
+              icon: <Icon.Sliders size={20} />,
+              isShow: true,
+            },
+          ],
+        },
+      ];
+    } else if (authUser.is_guest) {
+      // Guest
+      tabs = [
+        {
+          link: "/app",
+          label: "Dashboard",
+          tabs: [
+            {
+              link: "/app/discussions",
+              label: "Discussions",
+              icon: <Icon.FileText size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/votes",
+              label: "Votes",
+              icon: <Icon.CheckSquare size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/scheme",
+              label: "Color Scheme",
+              icon: <Icon.Sliders size={20} />,
+              isShow: true,
+            },
+          ],
+        },
+      ];
+    } else if (authUser.is_member) {
+      // Voting Associate
+      tabs = [
+        {
+          link: "/app",
+          label: "Dashboard",
+          tabs: [
+            {
+              link: "/app/discussions",
+              label: "Discussions",
+              icon: <Icon.FileText size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/votes",
+              label: "Votes",
+              icon: <Icon.CheckSquare size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/surveys/submit",
+              label: "Survey",
+              icon: <IconSurvey size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/proposals",
+              label: "My Proposals",
+              icon: <Icon.FolderPlus size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/all-proposals",
+              label: "All Proposals",
+              icon: <Icon.Briefcase size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/reputation",
+              label: "My Reputation",
+              icon: <Icon.Droplet size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/grants",
+              label: "My Grants",
+              icon: <Icon.List size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/va-directory",
+              label: "VA Directory",
+              icon: <IconVA size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/settings",
+              label: "Settings",
+              icon: <Icon.Settings size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/scheme",
+              label: "Color Scheme",
+              icon: <Icon.Sliders size={20} />,
+              isShow: true,
+            },
+          ],
+        },
+      ];
+    } else {
+      // Partipant
+      tabs = [
+        {
+          link: "/app",
+          label: "Dashboard",
+          tabs: [
+            {
+              link: "/app/discussions",
+              label: "Discussions",
+              icon: <Icon.FileText size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/votes",
+              label: "Votes",
+              icon: <Icon.CheckSquare size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/proposals",
+              label: "My Proposals",
+              icon: <Icon.FolderPlus size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/all-proposals",
+              label: "All Proposals",
+              icon: <Icon.Briefcase size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/reputation",
+              label: "My Reputation",
+              icon: <Icon.Droplet size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/grants",
+              label: "My Grants",
+              icon: <Icon.List size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/settings",
+              label: "Settings",
+              icon: <Icon.Settings size={20} />,
+              isShow: true,
+            },
+            {
+              link: "/app/scheme",
+              label: "Color Scheme",
+              icon: <Icon.Sliders size={20} />,
+              isShow: true,
+            },
+          ],
+        },
+      ];
+    }
+
+    this.setState({ tabs });
   }
 
   logout = (e) => {
@@ -58,20 +371,34 @@ class Sidebar extends Component {
   clickTab(e, link) {
     e.preventDefault();
     this.hideSidebar();
-    const { history } = this.props;
-    history.push(link);
+    if (link) {
+      const { history } = this.props;
+      history.push(link);
+    }
+  }
+
+  clickHelp = (e) => {
+    e.preventDefault();
+    this.props.dispatch(setActiveModal("help"));
+  };
+
+  getClassName(path, tab) {
+    let className = "";
+    if (path == tab.link) className = "active";
+    return className;
   }
 
   renderTabs() {
-    const { history } = this.props;
+    const { tabs } = this.state;
+    const { history, authUser } = this.props;
 
-    let path = "/dashboard";
+    let path = "/app";
     if (history && history.location && history.location.pathname)
       path = history.location.pathname;
 
     const items = [];
 
-    this.tabs.forEach((tab, index) => {
+    tabs.forEach((tab, index) => {
       const subItems = [];
 
       if (tab.tabs && tab.tabs.length) {
@@ -79,10 +406,24 @@ class Sidebar extends Component {
           subItems.push(
             <li
               key={`subTabItem_${subIndex}`}
-              className={path == subTab.link ? "active" : ""}
+              className={this.getClassName(path, subTab)}
+              hidden={!subTab.isShow}
             >
-              <a onClick={(e) => this.clickTab(e, subTab.link)}>
-                {subTab.icon}
+              <a
+                className="position-relative"
+                onClick={(e) => this.clickTab(e, subTab.link)}
+                style={{ color: "inherit" }}
+              >
+                {
+                 ((subTab.label === "My Grants" && !!authUser.check_active_grant) ||
+                  (subTab.label === "Survey" && !!authUser.has_survey))
+                  && (
+                    <div className="position-absolute" style={{ left: "29px" }}>
+                      <IconInfo />
+                    </div>
+                  )
+                }
+                <div>{subTab.icon}</div>
                 <span>{subTab.label}</span>
               </a>
             </li>
@@ -91,10 +432,7 @@ class Sidebar extends Component {
       }
 
       items.push(
-        <li
-          key={`tabItem_${index}`}
-          className={path == tab.link ? "active" : ""}
-        >
+        <li key={`tabItem_${index}`} className={this.getClassName(path, tab)}>
           {tab.link ? (
             <a onClick={(e) => this.clickTab(e, tab.link)}>{tab.label}</a>
           ) : (
@@ -115,18 +453,41 @@ class Sidebar extends Component {
     return <ul>{items}</ul>;
   }
 
-  render() {
-    return (
-      <div className="dashboard-sidebar-wrap">
-        <div id="dashboard-sidebar-logo">
-          <a onClick={(e) => this.clickTab(e, "/dashboard")}>
-            <img src="/logo-min.png" alt="" />
+  renderExtra() {
+    const { authUser } = this.props;
+    if (authUser.is_member || authUser.is_participant) {
+      return (
+        <div className="text-center mt-4 mb-5">
+          <a
+            id="get-help-btn"
+            className="btn btn-primary-outline small"
+            onClick={this.clickHelp}
+          >
+            Get Help
           </a>
-
-          <Icon.X onClick={this.hideSidebar} />
         </div>
+      );
+    }
+    return <Fragment></Fragment>;
+  }
 
-        <div id="dashboard-sidebar-tabs">{this.renderTabs()}</div>
+  render() {
+    const { theme } = this.props;
+    let logoPath = "/logo-min.png";
+    if (theme == "light") logoPath = "/logoblue-min.png";
+
+    return (
+      <div className="app-sidebar-wrap">
+        <Fade distance={"20px"} left duration={500} delay={200}>
+          <div id="app-sidebar-logo">
+            <a onClick={(e) => this.clickTab(e, "/app")}>
+              <img src={logoPath} alt="" />
+            </a>
+            <Icon.X onClick={this.hideSidebar} />
+          </div>
+          <div id="app-sidebar-tabs">{this.renderTabs()}</div>
+          {this.renderExtra()}
+        </Fade>
       </div>
     );
   }

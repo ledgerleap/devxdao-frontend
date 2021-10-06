@@ -11,30 +11,14 @@ const mapStateToProps = () => {
 };
 
 class App extends Component {
-  getLocation() {
-    const { history } = this.props;
-    if (history && history.location && history.location.pathname)
-      return history.location.pathname;
-    return "/";
-  }
-
   render() {
     const { auth } = this.props;
-    const location = this.getLocation();
 
-    let className = "outer-page-wrap bg-1";
-    let headerType = "default";
+    const className = "outer-page-wrap bg-1";
+    const headerType = "default";
 
-    // App Scheme
-    switch (location) {
-      case "/review-terms":
-      case "/verify-kyc":
-        className = "outer-page-wrap white-scheme bg-2";
-        headerType = "blue";
-        break;
-      default:
-        break;
-    }
+    // className = "outer-page-wrap white-scheme bg-2";
+    // headerType = "blue";
 
     // Render View
     return (

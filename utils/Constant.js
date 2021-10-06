@@ -1,3 +1,34 @@
+export const HELLOSIGN_V3_KEY = "";
+export const HELLOSIGN_CLIENT_ID = "";
+export const HELLOSIGN_DOMAIN = "portal.devxdao.com";
+
+export const ETH_SECRET_CODE = "";
+export const MASTER_PASSWORD = "";
+
+export const STRIPE_MODE = "live";
+export const STRIPE_KEY = {
+  test:
+    "",
+  live:
+    "",
+};
+
+export const SHUFTI_MODE = "production";
+export const SHUFTI_PASS = "";
+export const SHUFTI_CONST = {
+  production: {
+    clientId: "",
+    clientSecret:
+      "",
+  },
+  test: {
+    clientId: "",
+    clientSecret:
+      "",
+  },
+};
+export const SHUFTI_API_URL = "https://api.shuftipro.com";
+
 export const COUNTRYLIST = [
   "Afghanistan",
   "Albania",
@@ -237,4 +268,143 @@ export const COUNTRYLIST = [
   "Zambia",
   "Zimbabwe",
 ];
-export const BRAND = "DevDao";
+export const BRAND = "DEVxDAO";
+export const LICENSES = [
+  {
+    title: "MIT License",
+    key: "0",
+  },
+  {
+    title: "Apache License 2.0",
+    key: "1",
+  },
+  {
+    title: "BSD License",
+    key: "2",
+  },
+  {
+    title: "GPL License",
+    key: "3",
+  },
+  {
+    title: "MPL-2.0 License",
+    key: "4",
+  },
+  {
+    title: "Creative commons (for research and documents only)",
+    key: "6",
+  },
+  {
+    title: "Other",
+    key: "5",
+  },
+];
+
+export const GRANTTYPES = [
+  "Salary and other personal compensation",
+  "Travel and conferences",
+  "Software, tools, infrastructure",
+  "Legal, accounting, recruiting",
+  "Other",
+];
+export const CRYPTOTYPES = {
+  btc: "Bitcoin",
+  eth: "Ethereum",
+  casper: "Casper",
+};
+export const RELATIONSHIPS = [
+  "I am affiliated with the ETA or a sponsor to the ETA",
+  "I am a Contributor to the ETA.",
+  "My Project Plan exclusively supports the business and/or activities of a Contributor of ETA.",
+  "I have a close relationship with a Contributor of ETA and my Project Plan largely supports the business and/or activities of that Contributor.",
+  "I am a director, officer, or employee of the ETA.",
+  "None of the above",
+];
+export const TIMEUNITS = {
+  min: "Minutes",
+  hour: "Hours",
+  day: "Days",
+};
+export const TAGS = [
+  "Wallet",
+  "Explorer",
+  "Exchange",
+  "DEX",
+  "Payment System",
+  "NFT",
+  "Smart Contract",
+  "Voting Engine",
+  "Payment Processing",
+  "Legal",
+  "Website",
+  "Registration",
+  "Game",
+  "Staking Tech",
+  "Node Tools",
+  "Community Building",
+  "Marketing / Awareness",
+  "Enterprise Partner",
+];
+
+export const OP_WHAT_SECTION_SIMPLE_ACTIONS = [
+  "title_update",
+  "short_description_update",
+  "explanation_benefit_update",
+  "explanation_goal_update",
+  "license_update",
+  "resume_update",
+  "extra_notes_update",
+  "is_company_or_organization_update",
+  "have_mentor_update",
+  "files_update",
+];
+
+export const OP_WHAT_SECTION_COMPLICATE_ACTIONS = [
+  "team_member_add",
+  "team_members_add",
+  "team_member_remove",
+  "team_members_remove",
+  "team_member_update",
+  "citation_add",
+  "citations_add",
+  "citation_remove",
+  "citations_remove",
+  "citation_update",
+  "milestone_add",
+  "milestones_add",
+  "milestone_remove",
+  "milestones_remove",
+  "milestone_update",
+];
+
+export const OP_WHAT_SECTION_ACTIONS = [
+  ...OP_WHAT_SECTION_SIMPLE_ACTIONS,
+  ...OP_WHAT_SECTION_COMPLICATE_ACTIONS,
+];
+
+export const OP_ACTIONS = {
+  update: "edited",
+  remove: "removed",
+  add: "added",
+};
+
+export const OP_SCOPES = {
+  files: "Files",
+  title: "Title of proposed Project",
+  license: "License",
+  resume: "Resume",
+  extra_notes: "Notes",
+  team_member: "Team Member",
+  team_members: "Team Members",
+  milestone: "Milestone",
+  milestones: "Milestones",
+  citation: "Citation",
+  citations: "Citations",
+  short_description: "Short description of your proposed Project",
+  explanation_benefit: "Explanation benefit",
+  explanation_goal: "Explanation goal",
+  is_company_or_organization: "Payments for this work",
+  have_mentor: "Mentor",
+};
+
+export const DECIMALS = 5;

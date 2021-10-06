@@ -1,13 +1,12 @@
-import React, { Component, Suspense, lazy } from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Switch, Route } from "react-router-dom";
-import { hideCanvas, saveUser, showCanvas } from "../redux/actions";
+import { saveUser, showCanvas, hideCanvas } from "../redux/actions";
 import Helper from "../utils/Helper";
-import { getMe } from "../utils/Thunk";
+import { getGlobalSettings, getMe } from "../utils/Thunk";
 import PrivateRoute from "./PrivateRoute";
-
-const AppLayout = lazy(() => import("../layouts/app/App"));
-const DashboardLayout = lazy(() => import("../layouts/dashboard/Dashboard"));
+import AppLayout from "../layouts/app/App";
+import AuthAppLayout from "../layouts/authapp/AuthApp";
 
 const mapStateToProps = (state) => {
   return {
@@ -70,26 +69,28 @@ class Routes extends Component {
       JSON.stringify(prevProps.authUser) !== JSON.stringify(authUser)
     ) {
       this.setState({ auth: authUser });
+      this.loadInitialData(authUser);
     }
+  }
+
+  loadInitialData(authUser) {
+    if (!authUser || !authUser.id) return;
+    this.props.dispatch(getGlobalSettings());
   }
 
   render() {
     const { loaded, auth } = this.state;
-
     if (!loaded) return null;
 
     return (
-      <Suspense fallback={null}>
-        <Switch>
-          <PrivateRoute auth={auth} path="/dashboard">
-            <DashboardLayout auth={auth} />
-          </PrivateRoute>
-
-          <Route>
-            <AppLayout auth={auth} />
-          </Route>
-        </Switch>
-      </Suspense>
+      <Switch>
+        <PrivateRoute auth={auth} path="/app">
+          <AuthAppLayout auth={auth} />
+        </PrivateRoute>
+        <Route>
+          <AppLayout auth={auth} />
+        </Route>
+      </Switch>
     );
   }
 }

@@ -1,0 +1,30 @@
+#app-submit-survey-page {
+  .heading-style {
+    font-weight: 400;
+    font-size: 1.5rem;
+  }
+  .box-vote {
+    width: 100%;
+    max-width: 600px;
+  }
+  .c-form-row {
+    margin-bottom: 20px;
+    label {
+      margin-bottom: 10px;
+      display: block;
+    }
+    select {
+      background: #180431;
+      border: 1px solid #270A4B;
+      border-radius: 10px;
+      width: calc(50% - 10px);
+      color: white;
+      padding: 12px 10px;
+      padding: 0 20px;
+      height: 50px;
+      appearance: none;
+      -webkit-appearance: none;
+      margin: 5px 10px 5px 0;
+    }
+  }
+}

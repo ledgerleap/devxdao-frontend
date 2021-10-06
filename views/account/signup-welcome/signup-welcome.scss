@@ -14,11 +14,7 @@
       margin-bottom: 20px;
     }
 
-    p {
-      margin-bottom: 60px;
-    }
-
-    .btn {
+    .btn#begin-btn {
       margin-bottom: 20px;
       @media all and (max-width: 767px) {
         width: 100%;

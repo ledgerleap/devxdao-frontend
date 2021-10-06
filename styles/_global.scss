@@ -1,24 +1,7 @@
-.color-black {
-  color: #000000 !important;
-}
-.color-dark {
-  color: #191919 !important;
-}
-
-.font-weight-500 {
-  font-weight: 500 !important;
-}
-
-.font-size-18 {
-  font-size: 18px !important;
-}
-.font-size-12 {
-  font-size: 12px !important;
-}
-
-.position-relative {
-  position: relative !important;
-}
+@import "global/color";
+@import "global/button";
+@import "global/typo";
+@import "global/infinite";
 
 .custom-container {
   width: 1448px;
@@ -26,46 +9,18 @@
   margin: 0 auto;
   padding: 0 15px;
 }
-
+.text-underline {
+  text-decoration: underline !important;
+}
+.position-relative {
+  position: relative !important;
+}
 .img-block {
   display: block;
   width: 100%;
 }
-
 .img-fluid {
   max-width: 100%;
-}
-
-.btn {
-  display: inline-block;
-  cursor: pointer;
-  font-size: 1.125rem;
-  padding: 1.157rem 1rem;
-  text-align: center;
-  text-decoration: none;
-  border: none;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  font-family: 'Metropolis', Arial, Helvetica, sans-serif !important;
-  width: 264px;
-  max-width: 100%;
-
-  &:hover {
-    box-shadow: inset 0 0 0 99999px rgba(0,0,0,.1);
-  }
-
-  svg {
-    vertical-align: middle;
-  }
-
-  &.btn-primary {
-    background: rgb(113, 55, 206);
-    color: white;
-  }
-  &.btn-danger {
-    background: rgb(232, 85, 88);
-    color: white;
-  }
 }
 
 .custom-modals {
@@ -125,47 +80,40 @@
   }
 }
 
-.table-wrapper {
+::-webkit-scrollbar-corner {
+  background: transparent !important;
+}
+::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+::-webkit-scrollbar-track {
+  width: 8px !important;
+  border-radius: 10px !important;
+  &:hover {
+    background: #381760 !important;
+  }
+}
+::-webkit-scrollbar-thumb {
+  width: 8px !important;
+  border-radius: 10px !important;
+  background: #7A48B9 0% 0% no-repeat padding-box;
+  box-shadow: 0px 2px 1px #00000072;
+}
+.text-underline {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.text-elipse {
   display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.rdt_Table {
-  background: transparent !important;
-  
-  * {
-    color: white !important;
-  }
-
-  > div {
-    background: transparent !important;
-  }
-
-  .rdt_TableHead {
-    .rdt_TableHeadRow {
-      background: transparent !important;
-      border-bottom: 1px solid #3F196E !important;
-      min-height: 44px !important;
-    }
-  }
-  .rdt_TableBody {
-    .rdt_TableRow {
-      background: transparent !important;
-      border-bottom: 1px solid #3F196E !important;
-      min-height: 44px !important;
-    } 
-  }
+.text-pre-wrap {
+  white-space: pre-wrap;
 }
-
-.rdt_Pagination {
-  background: transparent !important;
-  * {
-    color: white !important;
-  }
-
-  button {
-    fill: rgba(255, 255, 255, .54);
-    &:disabled {
-      fill: rgba(255, 255, 255, .18);
-    }
-  }
+.break-word {
+  overflow-wrap: break-word;
 }

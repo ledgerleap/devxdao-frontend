@@ -2,13 +2,14 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import * as Icon from "react-feather";
 import {
-  setActiveModal,
   setReviewUser,
   showCanvas,
   hideCanvas,
   setAdminUserTableStatus,
+  removeActiveModal,
+  setAdminPendingActionTableStatus,
 } from "../../redux/actions";
-import { activateUser, rejectUser } from "../../utils/Thunk";
+import { activateParticipant, denyParticipant } from "../../utils/Thunk";
 
 import "./user-review.scss";
 
@@ -23,51 +24,52 @@ const mapStateToProps = (state) => {
 
 class UserReview extends Component {
   hideModal = () => {
-    this.props.dispatch(setActiveModal(""));
+    this.props.dispatch(removeActiveModal());
     this.props.dispatch(setReviewUser({}));
   };
 
   activate = (e) => {
     const { reviewUser } = this.props;
-    if (!reviewUser || !reviewUser.id) return;
+    if (!reviewUser || !reviewUser.user_id) return;
 
     e.preventDefault();
-    if (!confirm("Are you sure you are going to activate this user?")) return;
+    if (!confirm("Are you sure you are going to activate this Associate?"))
+      return;
 
     this.props.dispatch(
-      activateUser(
-        reviewUser.id,
+      activateParticipant(
+        reviewUser.user_id,
         () => {
           this.props.dispatch(showCanvas());
         },
         () => {
           this.props.dispatch(hideCanvas());
-          this.props.dispatch(setActiveModal(""));
-          this.props.dispatch(setReviewUser({}));
+          this.hideModal();
           this.props.dispatch(setAdminUserTableStatus(true));
+          this.props.dispatch(setAdminPendingActionTableStatus(true));
         }
       )
     );
   };
 
-  reject = (e) => {
+  deny = (e) => {
     const { reviewUser } = this.props;
-    if (!reviewUser || !reviewUser.id) return;
+    if (!reviewUser || !reviewUser.user_id) return;
 
     e.preventDefault();
-    if (!confirm("Are you sure you are going to reject this user?")) return;
+    if (!confirm("Are you sure you are going to deny this Associate?")) return;
 
     this.props.dispatch(
-      rejectUser(
-        reviewUser.id,
+      denyParticipant(
+        reviewUser.user_id,
         () => {
           this.props.dispatch(showCanvas());
         },
         () => {
           this.props.dispatch(hideCanvas());
-          this.props.dispatch(setActiveModal(""));
-          this.props.dispatch(setReviewUser({}));
+          this.hideModal();
           this.props.dispatch(setAdminUserTableStatus(true));
+          this.props.dispatch(setAdminPendingActionTableStatus(true));
         }
       )
     );
@@ -75,8 +77,7 @@ class UserReview extends Component {
 
   render() {
     const { reviewUser } = this.props;
-
-    if (!reviewUser || !reviewUser.id) return;
+    if (!reviewUser || !reviewUser.user_id) return;
 
     return (
       <div id="user-review-modal">
@@ -124,8 +125,8 @@ class UserReview extends Component {
           <a className="btn btn-primary" onClick={this.activate}>
             Activate User
           </a>
-          <a className="btn btn-danger" onClick={this.reject}>
-            Reject User
+          <a className="btn btn-danger" onClick={this.deny}>
+            Deny User
           </a>
         </div>
       </div>

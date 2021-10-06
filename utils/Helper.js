@@ -1,5 +1,7 @@
 /* eslint-disable no-useless-escape */
 const USER_KEY = "@devdao_user";
+const THEME_KEY = "@devdao_theme";
+const GUEST_KEY = "@devdao_guest";
 
 class Helper {
   // Get File Extension
@@ -32,20 +34,110 @@ class Helper {
     return true;
   }
 
+  // Save User
   static storeUser(userData) {
-    localStorage.setItem(USER_KEY, JSON.stringify(userData));
+    window.localStorage.setItem(USER_KEY, JSON.stringify(userData));
   }
 
+  // Remove Saved User
   static removeUser() {
-    localStorage.removeItem(USER_KEY);
+    window.localStorage.removeItem(USER_KEY);
   }
 
+  // Return Saved User
   static fetchUser() {
-    const jsonData = localStorage.getItem(USER_KEY);
+    const jsonData = window.localStorage.getItem(USER_KEY);
     if (jsonData) return JSON.parse(jsonData);
     return {};
   }
 
+  // Unformat Price String
+  static unformatPriceNumber(string) {
+    let stringNew = string.toString();
+    const last = stringNew[stringNew.length - 1];
+    if (last == ".") stringNew = stringNew.substring(0, stringNew.length - 1);
+
+    stringNew = stringNew.replaceAll(".", "");
+    stringNew = stringNew.replaceAll(",", ".");
+
+    if (last == ".") stringNew = stringNew + ".";
+
+    return stringNew;
+  }
+
+  // Unformat Telegram
+  static unformatTelegram(string) {
+    return string.toString().replaceAll("@", "");
+  }
+
+  // Format Telegram
+  static formatTelegram(string) {
+    string = this.unformatTelegram(string);
+    if (string) return "@" + string;
+    return "";
+  }
+
+  static ordinalSuffixOf(i) {
+    var j = i % 10,
+      k = i % 100;
+    if (j == 1 && k != 11) {
+      return i + "st";
+    }
+    if (j == 2 && k != 12) {
+      return i + "nd";
+    }
+    if (j == 3 && k != 13) {
+      return i + "rd";
+    }
+    return i + "th";
+  }
+
+  // Unformat Percentage
+  static unformatPercentage(string) {
+    return string.toString().replaceAll("%", "");
+  }
+
+  // Format Percentage
+  static formatPercentage(string) {
+    string = this.unformatPercentage(string);
+    if (string) return string + "%";
+    return "";
+  }
+
+  // Unformat Float String
+  static unformatNumber(str) {
+    return str?.toString().replaceAll(",", "");
+  }
+
+  // Format Price String
+  static formatPriceNumber(string, unit = "") {
+    string = this.unformatNumber(string);
+    if (isNaN(string) || string.trim() == "") return "";
+    const temp = string.split(".");
+    if (temp.length > 1) {
+      return `${unit}${
+        new Intl.NumberFormat("de-DE").format(parseInt(temp[0])) + "," + temp[1]
+      }`;
+    } else {
+      return `${unit}${new Intl.NumberFormat("de-DE").format(+string)}`;
+    }
+  }
+
+  // Format Float String
+  static formatNumber(string) {
+    string = string.toString().replaceAll(",", "");
+    if (isNaN(string) || string.trim() == "") return "";
+    const temp = string.split(".");
+    if (temp.length > 1) {
+      return (
+        new Intl.NumberFormat("en-US").format(parseInt(temp[0])) + "." + temp[1]
+      );
+    } else {
+      return new Intl.NumberFormat("en-US").format(parseInt(string));
+    }
+  }
+
+  // Adjust String to Precision - Fixed Float String
   static adjustNumericString(string, digit = 0) {
     if (isNaN(string) || string.trim() == "") return "";
     const temp = string.split(".");
@@ -53,6 +145,61 @@ class Helper {
       const suffix = temp[1].substr(0, digit);
       return `${temp[0]}.${suffix}`;
     } else return string;
+  }
+
+  // Get Excerpt
+  static getExcerpt(text) {
+    const length = 150;
+    if (text.length > length) return text.substring(0, length) + "...";
+    else return text;
+  }
+
+  // Get Color Theme
+  static getTheme() {
+    let theme = window.localStorage.getItem(THEME_KEY);
+    if (!theme) theme = "dark";
+    return theme;
+  }
+
+  // Save Color Theme
+  static saveTheme(theme) {
+    window.localStorage.setItem(THEME_KEY, theme);
+  }
+
+  // Get Saved Guest Key or Generate a New One
+  static getGuestKey(generateNew = true) {
+    let key = window.localStorage.getItem(GUEST_KEY);
+    if (key) return key;
+
+    if (generateNew) {
+      key =
+        "devdao_guest_user_" +
+        Date.now() +
+        "_" +
+        Math.floor(Math.random() * 100);
+      window.localStorage.setItem(GUEST_KEY, key);
+      return key;
+    } else return "";
+  }
+
+  // Remove Guest Key
+  static removeGuestKey() {
+    window.localStorage.removeItem(GUEST_KEY);
+  }
+
+  // IS DEV
+  static isDEV() {
+    const href = window.location.href;
+    if (href.includes("localhost:")) return true;
+    return false;
+  }
+
+  static joinURL(hostname, path) {
+    if (path && path.startsWith("/")) {
+      return `${hostname}${path.substring(1)}`;
+    } else {
+      return `${hostname}/${path}`;
+    }
   }
 }
 

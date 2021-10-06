@@ -8,6 +8,9 @@ import {
   SAVE_USER,
   SHOW_SIDEBAR,
   HIDE_SIDEBAR,
+  SET_GLOBAL_SETTINGS,
+  SET_THEME,
+  SET_CUSTOM_MODAL_DATA,
 } from "../actions";
 
 const initialState = {
@@ -18,10 +21,34 @@ const initialState = {
   sidebarShown: false,
   activeModal: "",
   authUser: {},
+  settings: {},
+  theme: "dark",
+  customModalData: {},
 };
 
 export default function (state = initialState, action) {
   switch (action.type) {
+    case SET_CUSTOM_MODAL_DATA: {
+      const { customModalData } = action.payload;
+      return {
+        ...state,
+        customModalData,
+      };
+    }
+    case SET_THEME: {
+      const { theme } = action.payload;
+      return {
+        ...state,
+        theme,
+      };
+    }
+    case SET_GLOBAL_SETTINGS: {
+      const { settings } = action.payload;
+      return {
+        ...state,
+        settings,
+      };
+    }
     case SHOW_SIDEBAR:
       return {
         ...state,
@@ -66,16 +93,18 @@ export default function (state = initialState, action) {
       };
     }
     case SET_ACTIVE_MODAL: {
-      const { activeModal } = action.payload;
+      const { activeModal, modalData } = action.payload;
       return {
         ...state,
         activeModal,
+        modalData,
       };
     }
     case REMOVE_ACTIVE_MODAL:
       return {
         ...state,
         activeModal: "",
+        modalData: null,
       };
     default:
       return state;

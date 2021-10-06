@@ -2,8 +2,38 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { GlobalCanvasComponent, PopupAlertComponent } from "../components";
-import { hideAlert } from "../redux/actions";
-import { UserReviewModal } from "../modals";
+import { hideAlert, setActiveModal } from "../redux/actions";
+import {
+  EditDenyModal,
+  DenyProposalModal,
+  UserReviewModal,
+  CustomGlobalModal,
+  StartGuestModal,
+  DOSPaymentModal,
+  DOSReviewModal,
+  VerifyKYCModal,
+  PaymentFormModal,
+  ReviewKYCModal,
+  PreRegisterActionModal,
+  StartHellosignModal,
+  HelpModal,
+  MilestoneVoteModal,
+  StartCheckSystemModal,
+  ViewPaymentFormModal,
+  ResetKYCModal,
+  AdminToolsModal,
+  ShuftiRefChangeModal,
+  SessionTimeoutModal,
+  CancelActiveSurveyModal,
+  AddAdminBoxModal,
+  StartMilestoneModal,
+  MilestoneRejectionModal,
+  AskRevokeAdminModal,
+  AskUndoRevokeAdminModal,
+  DraftProposalsModal,
+  ShowSurveyVoterAnswerModal,
+  ListVoterSurveyModal,
+} from "../modals";
 
 const mapStateToProps = (state) => {
   return {
@@ -13,10 +43,48 @@ const mapStateToProps = (state) => {
     showCanvas: state.global.showCanvas,
     authUser: state.global.authUser,
     activeModal: state.global.activeModal,
+    modalData: state.global.modalData,
   };
 };
 
 class Global extends Component {
+  componentDidMount() {
+    const { authUser } = this.props;
+    if (authUser && authUser.id) this.checkHelloSign();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { authUser } = this.props;
+    if (
+      authUser &&
+      authUser.id &&
+      JSON.stringify(prevProps.authUser) != JSON.stringify(authUser)
+    )
+      this.checkHelloSign();
+  }
+
+  checkHelloSign() {
+    // eslint-disable-next-line no-undef
+    // if (process.env.NEXT_PUBLIC_NODE_ENV === "production") {
+    const { authUser } = this.props;
+    const { profile } = authUser;
+    if (
+      !authUser.is_admin &&
+      authUser.can_access &&
+      authUser.email_verified &&
+      profile &&
+      profile.id &&
+      !profile.step_review
+    ) {
+      // Needs to do Hello Sign
+      // this.props.dispatch(setActiveModal("start-hellosign"));
+
+      // Check system
+      this.props.dispatch(setActiveModal("start-checksystem"));
+    }
+    // }
+  }
+
   hideAlert = () => {
     this.props.dispatch(hideAlert());
   };
@@ -43,7 +111,65 @@ class Global extends Component {
 
         {activeModal ? (
           <div className="custom-modals">
-            {activeModal == "user-review-modal" ? <UserReviewModal /> : null}
+            {activeModal == "user-review-modal" ? (
+              <UserReviewModal />
+            ) : activeModal == "deny-proposal" ? (
+              <DenyProposalModal />
+            ) : activeModal == "edit-deny" ? (
+              <EditDenyModal />
+            ) : activeModal == "custom-global-modal" ? (
+              <CustomGlobalModal />
+            ) : activeModal == "start-guest" ? (
+              <StartGuestModal />
+            ) : activeModal == "dos-payment" ? (
+              <DOSPaymentModal />
+            ) : activeModal == "dos-review" ? (
+              <DOSReviewModal />
+            ) : activeModal == "verify-kyc" ? (
+              <VerifyKYCModal />
+            ) : activeModal == "payment-form" ? (
+              <PaymentFormModal />
+            ) : activeModal == "view-payment-form" ? (
+              <ViewPaymentFormModal />
+            ) : activeModal == "review-kyc" ? (
+              <ReviewKYCModal />
+            ) : activeModal == "reset-kyc" ? (
+              <ResetKYCModal />
+            ) : activeModal == "pre-register-action" ? (
+              <PreRegisterActionModal />
+            ) : activeModal == "start-hellosign" ? (
+              <StartHellosignModal />
+            ) : activeModal == "start-checksystem" ? (
+              <StartCheckSystemModal />
+            ) : activeModal == "admin-tools" ? (
+              <AdminToolsModal data={this.props.modalData} />
+            ) : activeModal == "shufti-ref-change" ? (
+              <ShuftiRefChangeModal data={this.props.modalData} />
+            ) : activeModal == "session-timeout" ? (
+              <SessionTimeoutModal />
+            ) : activeModal == "show-survey-voter-answer" ? (
+              <ShowSurveyVoterAnswerModal data={this.props.modalData} />
+            ) : activeModal == "list-survey-voters" ? (
+              <ListVoterSurveyModal data={this.props.modalData} />
+            ) : activeModal == "cancel-active-survey" ? (
+              <CancelActiveSurveyModal data={this.props.modalData} />
+            ) : activeModal == "draft-proposals" ? (
+              <DraftProposalsModal />
+            ) : activeModal == "add-admin-box" ? (
+              <AddAdminBoxModal />
+            ) : activeModal == "ask-revoke-admin" ? (
+              <AskRevokeAdminModal data={this.props.modalData} />
+            ) : activeModal == "ask-undo-revoke-admin" ? (
+              <AskUndoRevokeAdminModal data={this.props.modalData} />
+            ) : activeModal == "start-milestone" ? (
+              <StartMilestoneModal />
+            ) : activeModal == "milestone-rejection" ? (
+              <MilestoneRejectionModal data={this.props.modalData} />
+            ) : activeModal == "help" ? (
+              <HelpModal />
+            ) : activeModal == "milestone-vote" ? (
+              <MilestoneVoteModal />
+            ) : null}
           </div>
         ) : null}
       </Fragment>

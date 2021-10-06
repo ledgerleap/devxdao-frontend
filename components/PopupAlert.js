@@ -23,7 +23,7 @@ class PopupAlert extends Component {
         open={shown || false}
         onClose={this.onClose}
         key={`topright_${moment().unix()}`}
-        autoHideDuration={2000}
+        autoHideDuration={5000}
         style={{
           zIndex: 9999,
         }}
