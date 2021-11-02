@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Redirect, withRouter } from "react-router-dom";
 import classNames from "classnames";
+import * as Icon from "react-feather";
 import moment from "moment";
 import {
   showCanvas,
@@ -16,11 +17,19 @@ import SingleProposalDetailView from "../../shared/single-proposal-detail/Single
 import ProposalChangeFormView from "../../shared/proposal-change-form/ProposalChangeForm";
 import ProposalChangesView from "../../shared/proposal-changes/ProposalChanges";
 import VoteAlertView from "../../shared/vote-alert/VoteAlert";
-import { PageHeaderComponent } from "../../../../components";
+import {
+  CardBody,
+  CardHeader,
+  Card,
+  PageHeaderComponent,
+  Checkbox,
+  CheckboxX,
+} from "../../../../components";
 import IconDot from "../../../../public/icons/dot.svg";
 import IconEmptyDot from "../../../../public/icons/empty-dot.svg";
 import IconCheckDot from "../../../../public/icons/check-dot.svg";
 import "./single-proposal.scss";
+import Helper from "../../../../utils/Helper";
 
 const mapStateToProps = (state) => {
   return {
@@ -55,36 +64,32 @@ const showWinner = (trackings, key) => {
 };
 
 const showCompliance = (trackings, key, title) => {
-  const isPassInformalVote = trackings.find(
-    (x) => x.key === "informal_vote_started"
-  );
+  // const isPassInformalVote = trackings.find(
+  //   (x) => x.key === "informal_vote_started"
+  // );
   const item = trackings.find((x) => x.key === key);
-  if (isPassInformalVote) {
-    if (!item) {
-      return null;
-    } else {
-      return {
-        title: title,
-        status: true,
-        datetime: item
-          ? moment(item.created_at).local().format("M/D/YYYY")
-          : "--/--/----",
-      };
-    }
-  } else {
-    return {
-      title: title,
-      status: !!item,
-      datetime: item
-        ? moment(item.created_at).local().format("M/D/YYYY")
-        : "--/--/----",
-    };
-  }
+  // if (isPassInformalVote) {
+  return {
+    title: title,
+    status: !!item,
+    datetime: item
+      ? moment(item.created_at).local().format("M/D/YYYY")
+      : "--/--/----",
+  };
+  // } else {
+  //   return {
+  //     title: title,
+  //     status: !!item,
+  //     datetime: item
+  //       ? moment(item.created_at).local().format("M/D/YYYY")
+  //       : "--/--/----",
+  //   };
+  // }
 };
 
 const generateTimelineMilestones = (proposal, trackings) => {
   const milestones = [];
-  proposal?.milestones.forEach((x, index) => {
+  proposal?.milestones?.forEach((x, index) => {
     milestones.push(
       ...[
         {
@@ -154,12 +159,6 @@ const generateTimeline = (proposal, trackings) => {
       ...findTrackingItem(trackings, "discussion_phase"),
     },
     showWinner(trackings, "passed_survey_spot"),
-    showCompliance(trackings, "kyc_checks_complete", "KYC checks complete"),
-    showCompliance(
-      trackings,
-      "eta_compliance_complete",
-      "ETA compliance complete"
-    ),
     {
       title: `Informal vote started`,
       ...findTrackingItem(trackings, "informal_vote_started"),
@@ -168,6 +167,12 @@ const generateTimeline = (proposal, trackings) => {
       title: `Informal vote passed`,
       ...findTrackingItem(trackings, "informal_vote_passed"),
     },
+    showCompliance(trackings, "kyc_checks_complete", "KYC checks complete"),
+    showCompliance(
+      trackings,
+      "eta_compliance_complete",
+      "ETA compliance complete"
+    ),
     {
       title: `Entered Formal vote`,
       ...findTrackingItem(trackings, "entered_formal_vote"),
@@ -224,7 +229,7 @@ class SingleProposal extends Component {
   }
 
   // Get Proposal
-  getProposal() {
+  getProposal = () => {
     const { proposalId } = this.state;
 
     this.props.dispatch(
@@ -236,7 +241,7 @@ class SingleProposal extends Component {
         },
         (res) => {
           const proposal = res.proposal || {};
-          proposal.milestones = proposal.milestones.map((x) => ({
+          proposal.milestones = proposal.milestones?.map((x) => ({
             ...x,
             checked: true,
           }));
@@ -261,7 +266,7 @@ class SingleProposal extends Component {
         }
       )
     );
-  }
+  };
 
   // Cancel Form
   cancelForm = () => {
@@ -364,6 +369,59 @@ class SingleProposal extends Component {
     );
   }
 
+  renderComplianceStatus = () => {
+    const { proposal } = this.state;
+    if (
+      proposal?.onboarding?.force_to_formal &&
+      proposal?.onboarding?.compliance_status === "approved"
+    ) {
+      return "manually approved";
+    } else {
+      return proposal?.onboarding?.compliance_status;
+    }
+  };
+
+  renderComplianceCheck = () => {
+    const { proposal } = this.state;
+    return (
+      <div className="mb-5">
+        <Card>
+          <CardHeader>
+            <label className="pr-2">Compliance Check</label>
+          </CardHeader>
+          <CardBody>
+            <div className="mt-3">
+              <div>
+                <label className="pr-2">Status:</label>
+                <b className="text-capitalize">
+                  {this.renderComplianceStatus()}
+                </b>
+              </div>
+              <div>
+                <label className="pr-2">Admin email:</label>
+                <b>{proposal?.onboarding?.admin_email}</b>
+              </div>
+              <div>
+                <label className="pr-2">Timestamp:</label>
+                <b>
+                  {moment(proposal?.onboarding?.compliance_reviewed_at)
+                    .local()
+                    .format("HH:mm M/D/YYYY")}
+                </b>
+              </div>
+              {proposal?.onboarding?.deny_reason && (
+                <div>
+                  <label className="pr-2">Denied Reason:</label>
+                  <b>{proposal?.onboarding?.deny_reason}</b>
+                </div>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  };
+
   // Render Content
   render() {
     const { authUser } = this.props;
@@ -408,7 +466,297 @@ class SingleProposal extends Component {
         <div className="d-flex gap-box">
           <div className="proposal-detail-box">
             {this.renderDetail()}
+            {this.renderComplianceCheck()}
             {this.renderChangeContent()}
+            <>
+              {proposal?.milestones?.map(
+                (milestone, ind) =>
+                  milestone?.milestone_review?.length > 0 &&
+                  milestone?.milestone_review?.map((item, index) => (
+                    <Card className="mt-3 mw-100" key={index}>
+                      <CardHeader>
+                        <div
+                          className="app-simple-section__titleInner w-100"
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <div>
+                            <label className="pr-2">
+                              {`Milestone log for ${proposal.id} - Milestone ${
+                                ind + 1
+                              } - Submission ${item.time_submit}`}
+                            </label>
+                            <Icon.Info size={16} />
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardBody>
+                        <div className="py-3">
+                          <label>
+                            <b>Milestone Title:</b>
+                          </label>
+                          <p>{milestone.title}</p>
+                        </div>
+                        <div className="pb-3">
+                          <label>
+                            <b>Grant Protion:</b>
+                          </label>
+                          <p>
+                            {Helper.formatPriceNumber(
+                              milestone.grant || "",
+                              "€"
+                            )}
+                          </p>
+                        </div>
+                        <div className="pb-3">
+                          <label>
+                            <b>Milestone Submission URL:</b>
+                          </label>
+                          <p>{item.milestone_submit_history?.url}</p>
+                        </div>
+                        {item?.milestone_check_list && (
+                          <>
+                            <label>
+                              <b>Applicant checklist:</b>
+                            </label>
+                            <div className="">
+                              <Checkbox
+                                value={true}
+                                text={`All attestations accepted on ${moment(
+                                  item?.milestone_check_list?.created_at
+                                ).format("M/D/YYYY")}`}
+                                readOnly
+                              />
+                              <h6 className="mt-5">CRdao checklist:</h6>
+                              <div className="my-3">
+                                <CheckboxX
+                                  value={
+                                    +item?.milestone_check_list
+                                      ?.crdao_acknowledged_project
+                                  }
+                                  text={`CRDAO has acknowledged the project Definition of Done? ${moment(
+                                    item?.milestone_check_list?.created_at
+                                  ).format("M/D/YYYY")}`}
+                                  readOnly
+                                />
+                                <p className="padding-notes">
+                                  Notes:{" "}
+                                  {
+                                    item?.milestone_check_list
+                                      ?.crdao_acknowledged_project_notes
+                                  }
+                                </p>
+                              </div>
+                              <div className="my-3">
+                                <CheckboxX
+                                  value={
+                                    +item?.milestone_check_list
+                                      ?.crdao_accepted_pm
+                                  }
+                                  text={`CRDAO has accepted the Program Management T&C? ${moment(
+                                    item?.milestone_check_list?.created_at
+                                  ).format("M/D/YYYY")}`}
+                                  readOnly
+                                />
+                                <p className="padding-notes">
+                                  Notes:{" "}
+                                  {
+                                    item?.milestone_check_list
+                                      ?.crdao_accepted_pm_notes
+                                  }
+                                </p>
+                              </div>
+                              <div className="my-3">
+                                <CheckboxX
+                                  value={
+                                    +item?.milestone_check_list
+                                      ?.crdao_acknowledged_receipt
+                                  }
+                                  text={`CRDAO has acknowledged receipt of the corprus of work? ${moment(
+                                    item?.milestone_check_list?.created_at
+                                  ).format("M/D/YYYY")}`}
+                                  readOnly
+                                />
+                                <p className="padding-notes">
+                                  Notes:{" "}
+                                  {
+                                    item?.milestone_check_list
+                                      ?.crdao_acknowledged_receipt_notes
+                                  }
+                                </p>
+                              </div>
+                              <div className="my-3">
+                                <CheckboxX
+                                  value={
+                                    +item?.milestone_check_list
+                                      ?.crdao_submitted_review
+                                  }
+                                  text={`CRDAO has submitted a review of the corprus of work? ${moment(
+                                    item?.milestone_check_list?.created_at
+                                  ).format("M/D/YYYY")}`}
+                                  readOnly
+                                />
+                                <p className="padding-notes">
+                                  Notes:{" "}
+                                  {
+                                    item?.milestone_check_list
+                                      ?.crdao_submitted_review_notes
+                                  }
+                                </p>
+                              </div>
+                              <div className="my-3">
+                                <CheckboxX
+                                  value={
+                                    +item?.milestone_check_list
+                                      ?.crdao_submitted_subs
+                                  }
+                                  text={`CRDAO has acknowledged the project Definition of Done? ${moment(
+                                    item?.milestone_check_list?.created_at
+                                  ).format("M/D/YYYY")}`}
+                                  readOnly
+                                />
+                                <p className="padding-notes">
+                                  Notes:{" "}
+                                  {
+                                    item?.milestone_check_list
+                                      ?.crdao_submitted_subs_notes
+                                  }
+                                </p>
+                              </div>
+                              <h6 className="mt-5">
+                                Program Management checklist:
+                              </h6>
+                              <div className="my-3">
+                                <CheckboxX
+                                  value={
+                                    +item?.milestone_check_list
+                                      ?.pm_submitted_evidence
+                                  }
+                                  text={`CRDAO Program Management has submitted the Evidence of Work location? ${moment(
+                                    item?.milestone_check_list?.created_at
+                                  ).format("M/D/YYYY")}`}
+                                  readOnly
+                                />
+                                <p className="padding-notes">
+                                  Notes:{" "}
+                                  {
+                                    item?.milestone_check_list
+                                      ?.pm_submitted_evidence_notes
+                                  }
+                                </p>
+                              </div>
+                              <div className="my-3">
+                                <CheckboxX
+                                  value={
+                                    +item?.milestone_check_list
+                                      ?.pm_submitted_admin
+                                  }
+                                  text={`CRDAO Program Management has submitted Administrator notes? ${moment(
+                                    item?.milestone_check_list?.created_at
+                                  ).format("M/D/YYYY")}`}
+                                  readOnly
+                                />
+                                <p className="padding-notes">
+                                  Notes:{" "}
+                                  {
+                                    item?.milestone_check_list
+                                      ?.pm_submitted_admin_notes
+                                  }
+                                </p>
+                              </div>
+                              <div className="my-3">
+                                <CheckboxX
+                                  value={
+                                    +item?.milestone_check_list
+                                      ?.pm_verified_crdao
+                                  }
+                                  text={`Program Management has verified corprus existence? ${moment(
+                                    item?.milestone_check_list?.created_at
+                                  ).format("M/D/YYYY")}`}
+                                  readOnly
+                                />
+                                <p className="padding-notes">
+                                  Notes:{" "}
+                                  {
+                                    item?.milestone_check_list
+                                      ?.pm_verified_corprus_notes
+                                  }
+                                </p>
+                              </div>
+                              <div className="my-3">
+                                <CheckboxX
+                                  value={
+                                    +item?.milestone_check_list
+                                      ?.pm_verified_crdao
+                                  }
+                                  text={`Program Management has verified CRDAO's review exists? ${moment(
+                                    item?.milestone_check_list?.created_at
+                                  ).format("M/D/YYYY")}`}
+                                  readOnly
+                                />
+                                <p className="padding-notes">
+                                  Notes:{" "}
+                                  {
+                                    item?.milestone_check_list
+                                      ?.pm_verified_crdao_notes
+                                  }
+                                </p>
+                              </div>
+                              <div className="my-3">
+                                <CheckboxX
+                                  value={
+                                    +item?.milestone_check_list
+                                      ?.pm_verified_subs
+                                  }
+                                  text={`Program Management has verified CRDAO substantiation (voting record) existence? ${moment(
+                                    item?.milestone_check_list?.created_at
+                                  ).format("M/D/YYYY")}`}
+                                  readOnly
+                                />
+                                <p className="padding-notes">
+                                  Notes:{" "}
+                                  {
+                                    item?.milestone_check_list
+                                      ?.pm_verified_subs_notes
+                                  }
+                                </p>
+                              </div>
+                              <div className="my-3">
+                                <p className="padding-notes">
+                                  Other general reviewer notes:
+                                  <span className="pl-2">
+                                    {item?.milestone_check_list?.addition_note}
+                                  </span>
+                                </p>
+                              </div>
+                              <div className="my-3">
+                                <p className="padding-notes">
+                                  Program manager review submission timestamp:
+                                  <span className="pl-2">
+                                    {moment(item?.reviewed_at).format(
+                                      "M/D/YYYY"
+                                    )}
+                                  </span>
+                                </p>
+                              </div>
+                              <div className="my-3">
+                                <p className="padding-notes">
+                                  Program manager reviewer email:
+                                  <span className="pl-2">
+                                    {item?.user?.email}
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </CardBody>
+                    </Card>
+                  ))
+              )}
+            </>
           </div>
           {proposal.type === "grant" && (
             <div

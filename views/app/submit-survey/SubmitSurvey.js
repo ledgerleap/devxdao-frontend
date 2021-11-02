@@ -37,6 +37,7 @@ class SubmitSurvey extends Component {
       currentSurvey: null,
       discussions: [],
       responses: [],
+      downvoteResponses: [],
       noSurvey: false,
     };
   }
@@ -74,11 +75,23 @@ class SubmitSurvey extends Component {
     return true;
   };
 
-  renderDiscussions = (i) => {
-    const { responses, discussions } = this.state;
-    const ids = responses.filter((x) => !!x).map((x) => x.proposal_id);
-    const currentIds = ids.filter((x) => x !== responses[i]?.proposal_id);
-    const temp = discussions.filter((x) => !currentIds.includes(x.id));
+  renderDiscussions = (i, status) => {
+    const { responses, downvoteResponses, discussions } = this.state;
+    let otherIds;
+    let ids;
+    let currentIds;
+    if (status === "up") {
+      otherIds = downvoteResponses.filter((x) => !!x).map((x) => x.proposal_id);
+      ids = responses.filter((x) => !!x).map((x) => x.proposal_id);
+      currentIds = ids.filter((x) => x !== responses[i]?.proposal_id);
+    } else {
+      otherIds = responses.filter((x) => !!x).map((x) => x.proposal_id);
+      ids = downvoteResponses.filter((x) => !!x).map((x) => x.proposal_id);
+      currentIds = ids.filter((x) => x !== downvoteResponses[i]?.proposal_id);
+    }
+    const temp = discussions
+      .filter((x) => !otherIds.includes(x.id))
+      .filter((x) => !currentIds.includes(x.id));
     return temp;
   };
 
@@ -95,14 +108,32 @@ class SubmitSurvey extends Component {
     this.setState({ responses });
   };
 
+  setDownvoteResponse = (e, i) => {
+    const { downvoteResponses } = this.state;
+    if (e.target.value === "skip") {
+      downvoteResponses[i] = null;
+    } else {
+      downvoteResponses[i] = {
+        proposal_id: +e.target.value,
+        place_choice: i + 1,
+      };
+    }
+    this.setState({ downvoteResponses });
+  };
+
   submitResponse = () => {
     const { authUser } = this.props;
-    const { currentSurvey, responses } = this.state;
-    const body = responses.filter((x) => !!x);
+    const { currentSurvey, responses, downvoteResponses } = this.state;
+    let body = {
+      upvote_responses: responses.filter((x) => !!x),
+    };
+    if (+currentSurvey.downvote === 1) {
+      body.downvote_responses = downvoteResponses.filter((x) => !!x);
+    }
     this.props.dispatch(
       submitSurvey(
         currentSurvey.id,
-        { responses: body },
+        body,
         () => {
           this.props.dispatch(showCanvas());
         },
@@ -120,17 +151,46 @@ class SubmitSurvey extends Component {
         }
       )
     );
+    // if (+currentSurvey.downvote === 1) {
+    //   this.props.dispatch(
+    //     submitDownvoteSurvey(
+    //       currentSurvey.id,
+    //       { responses: downvoteResponses.filter((x) => !!x) },
+    //       () => {
+    //         this.props.dispatch(showCanvas());
+    //       },
+    //       (res) => {
+    //         this.props.dispatch(hideCanvas());
+    //         if (res.success) {
+    //           currentSurvey.is_submitted = true;
+    //           this.setState({ currentSurvey });
+    //           authUser.has_survey = 0;
+    //           this.props.dispatch(saveUser({ ...authUser }));
+    //           this.props.dispatch(
+    //             showAlert("Submit Responses successfully!", "success")
+    //           );
+    //         }
+    //       }
+    //     )
+    //   );
+    // }
   };
 
   render() {
     const { authUser } = this.props;
-    const { currentSurvey, showLoading, responses, noSurvey } = this.state;
+    const {
+      currentSurvey,
+      showLoading,
+      responses,
+      noSurvey,
+      downvoteResponses,
+    } = this.state;
 
     if (!authUser || !authUser.id) return null;
     if (!authUser.is_member) return <Redirect to="/" />;
 
     return (
-      <div id="app-submit-survey-page" className="h-100">
+      <div id="app-submit-survey-page">
         <Fade distance={"20px"} bottom duration={300} delay={600}>
           <PageHeaderComponent title="" />
           <section className="app-infinite-box mb-4">
@@ -171,6 +231,7 @@ class SubmitSurvey extends Component {
                     <>
                       <div className="pb-3 pl-5 pr-3">
                         <div className="c-form-row">
+                          <h5 className="my-2 text-bold">UPVOTES</h5>
                           <label>
                             Please select your favorite
                             {currentSurvey?.number_response} proposals from the
@@ -194,15 +255,60 @@ class SubmitSurvey extends Component {
                                   {this.checkSkip(i) && (
                                     <option value="skip">Skip</option>
                                   )}
-                                  {this.renderDiscussions(i).map((item) => (
-                                    <option key={item.id} value={item.id}>
-                                      {item.id} - {item.title}
-                                    </option>
-                                  ))}
+                                  {this.renderDiscussions(i, "up").map(
+                                    (item) => (
+                                      <option key={item.id} value={item.id}>
+                                        {item.id} - {item.title}
+                                      </option>
+                                    )
+                                  )}
                                 </select>
                               ))}
                           </div>
                         </div>
+                        {+currentSurvey?.downvote === 1 && (
+                          <div className="mt-4 c-form-row">
+                            <h5 className="my-2 text-bold">DOWNVOTES</h5>
+                            <label>
+                              {`Please select the ${currentSurvey?.number_response}
+                              grants that you DO NOT think should move forward.
+                              The ${currentSurvey?.number_response} of grants with
+                              the most DOWNVOTES will have their discussion ended
+                              and NOT move forward to become a grant. You may skip
+                              responses if you choose.`}
+                            </label>
+                            <div className="flex box-vote">
+                              {Array(+currentSurvey?.number_response || 0)
+                                .fill(1)
+                                .map((choice, i) => (
+                                  <select
+                                    key={i}
+                                    defaultValue=""
+                                    value={downvoteResponses[i]?.proposal_id}
+                                    onChange={(e) =>
+                                      this.setDownvoteResponse(e, i)
+                                    }
+                                  >
+                                    <option value="" disabled>
+                                      {`Select your ${Helper.ordinalSuffixOf(
+                                        i + 1
+                                      )} place choice`}
+                                    </option>
+                                    {this.checkSkip(i) && (
+                                      <option value="skip">Skip</option>
+                                    )}
+                                    {this.renderDiscussions(i, "down").map(
+                                      (item) => (
+                                        <option key={item.id} value={item.id}>
+                                          {item.id} - {item.title}
+                                        </option>
+                                      )
+                                    )}
+                                  </select>
+                                ))}
+                            </div>
+                          </div>
+                        )}
                         <button
                           className="mt-3 btn btn-primary less-small"
                           onClick={this.submitResponse}
@@ -258,6 +364,23 @@ class SubmitSurvey extends Component {
                           </p>
                         ))}
                     </div>
+                    {+currentSurvey?.downvote === 1 && (
+                      <>
+                        <p>The downvotes are listed below.</p>
+                        <div className="my-3">
+                          {currentSurvey?.survey_downvote_ranks
+                            ?.filter((x) => x.is_winner)
+                            .map((x, i) => (
+                              <p className="py-2" key={i}>
+                                {Helper.ordinalSuffixOf(i + 1)} Place -{" "}
+                                <Link to={`/app/proposal/${x.proposal?.id}`}>
+                                  {x.proposal?.title}
+                                </Link>
+                              </p>
+                            ))}
+                        </div>
+                      </>
+                    )}
                     <Link to="/app" className="btn btn-primary less-small">
                       Back to dashboard
                     </Link>

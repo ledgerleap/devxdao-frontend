@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Redirect, withRouter } from "react-router-dom";
 import { Fade } from "react-reveal";
-import { PageHeaderComponent } from "../../../components";
+import { Checkbox, PageHeaderComponent } from "../../../components";
 import "./style.scss";
 import { launchSurvey } from "../../../utils/Thunk";
 import { hideCanvas, showAlert, showCanvas } from "../../../redux/actions";
@@ -22,6 +22,7 @@ class StartSurvey extends Component {
         number_response: "",
         time_unit: "",
         time: "",
+        downvote: 0,
       },
     };
   }
@@ -34,6 +35,7 @@ class StartSurvey extends Component {
 
   doLaunchSurvey = () => {
     const form = {
+      ...this.state.form,
       number_response: +this.state.form.number_response,
       time_unit: this.state.form.time_unit,
       time: +this.state.form.time,
@@ -65,7 +67,7 @@ class StartSurvey extends Component {
   render() {
     const { authUser } = this.props;
     const {
-      form: { number_response, time_unit, time },
+      form: { number_response, time_unit, time, downvote },
     } = this.state;
 
     if (!authUser || !authUser.id) return null;
@@ -134,6 +136,13 @@ class StartSurvey extends Component {
                     </select>
                   </div>
                 </div>
+              </div>
+              <div>
+                <Checkbox
+                  value={downvote}
+                  onChange={(e) => this.setFormValue("downvote", e ? 1 : 0)}
+                  text="Gather downvotes"
+                />
               </div>
               {!!number_response && !!time && !!time_unit && (
                 <p className="py-5">

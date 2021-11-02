@@ -1,10 +1,11 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
+import React, { Component, useState } from "react";
+import { connect, useDispatch } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { GlobalRelativeCanvasComponent } from "../../../components";
 import {
   checkUserActiveGrant,
   getGrantsShared,
+  getNotSubmitMilestones,
   startFormalMilestoneVotingUser,
 } from "../../../utils/Thunk";
 import {
@@ -19,6 +20,8 @@ import {
 } from "../../../redux/actions";
 
 import "./member-grant.scss";
+import * as Icon from "react-feather";
+
 // eslint-disable-next-line no-undef
 const moment = require("moment");
 
@@ -27,6 +30,206 @@ const mapStateToProps = (state) => {
     authUser: state.global.authUser,
     grantTableStatus: state.table.grantTableStatus,
   };
+};
+
+const GrantItem = ({ item, clickRow, renderStatus }) => {
+  const [expand, setExpand] = useState();
+  const dispatch = useDispatch();
+
+  const canMultipleSubmit = () => {
+    return item.proposal?.milestones?.some((x) => !x.submitted_time);
+  };
+
+  const multipleSubmit = () => {
+    dispatch(
+      getNotSubmitMilestones(
+        item.proposal_id,
+        () => {
+          dispatch(showCanvas());
+        },
+        (res) => {
+          dispatch(hideCanvas());
+          if (res.success) {
+            dispatch(
+              setActiveModal("multiple-milestone-submit", {
+                item,
+                unsubmittedMilestones: res.milestones,
+              })
+            );
+          }
+        }
+      )
+    );
+  };
+
+  const singleSubmit = async (mile, index) => {
+    const milestone = {
+      index,
+      proposal: item.proposal,
+      milestone: mile,
+    };
+    await dispatch(setMilestoneVoteData(milestone));
+    await dispatch(setActiveModal("milestone-vote"));
+  };
+
+  const startFormalMilestoneVote = (mile, lastVote) => {
+    dispatch(
+      startFormalMilestoneVotingUser(
+        item.proposal_id,
+        lastVote.id,
+        () => {
+          dispatch(showCanvas());
+        },
+        (res) => {
+          dispatch(hideCanvas());
+          if (res.success) {
+            dispatch(
+              showAlert(
+                "Formal voting process has been started successfully",
+                "success"
+              )
+            );
+            dispatch(setGrantTableStatus(true));
+          }
+        }
+      )
+    );
+  };
+
+  const renderAction = (mile, index) => {
+    const latestReview =
+      mile.milestone_review[mile.milestone_review.length - 1];
+    if (!mile.submitted_time) {
+      return (
+        <a
+          className="btn btn-primary extra-small btn-fluid-small"
+          onClick={() => singleSubmit(mile, index)}
+        >
+          Submit Milestone
+        </a>
+      );
+    }
+    if (
+      mile.submitted_time &&
+      ["pending", "active"].includes(latestReview?.status)
+    ) {
+      return <p className="font-size-14 color-primary">In Review with Admin</p>;
+    }
+    if (mile.submitted_time && ["denied"].includes(latestReview?.status)) {
+      return (
+        <a
+          className="btn btn-primary extra-small btn-fluid-small"
+          onClick={() => singleSubmit(mile, index)}
+        >
+          Re-submit Milestone
+        </a>
+      );
+    }
+    if (mile.votes.length > 0) {
+      const lastVote = mile.votes[mile.votes.length - 1];
+      if (lastVote.type === "informal" && lastVote.result === "success") {
+        return (
+          <a
+            className="btn btn-primary extra-small btn-fluid-small"
+            onClick={() => startFormalMilestoneVote(mile, lastVote)}
+          >
+            Start Formal Milestone Vote
+          </a>
+        );
+      }
+      if (lastVote.type === "formal" && lastVote.result === "success") {
+        return <p className="font-size-14 color-success">Completed</p>;
+      }
+      if (lastVote.result === "fail") {
+        return (
+          <a
+            className="btn btn-primary extra-small btn-fluid-small"
+            onClick={() => singleSubmit(mile, index)}
+          >
+            Re-Submit Milestone
+          </a>
+        );
+      }
+    }
+    return "-";
+  };
+
+  return (
+    <>
+      <div className="parent-row">
+        <div className="infinite-row">
+          <div className="c-col-1 c-cols">
+            <label className="font-size-14" onClick={() => setExpand(!expand)}>
+              {!expand && <Icon.ChevronUp />}
+              {expand && <Icon.ChevronDown />}
+            </label>
+          </div>
+          <div className="c-col-2 c-cols">
+            <label
+              className="font-size-14 font-weight-700"
+              onClick={() => clickRow(item)}
+            >
+              {item.proposal_id}
+            </label>
+          </div>
+          <div className="c-col-3 c-cols">
+            <label
+              className="font-size-14 font-weight-700"
+              onClick={() => clickRow(item)}
+            >
+              {item.proposal.title}
+            </label>
+          </div>
+          <div className="c-col-4 c-cols">{renderStatus(item)}</div>
+          <div className="c-col-5 c-cols">
+            <label className="font-size-14">
+              {moment(item.created_at).local().format("M/D/YYYY")}{" "}
+              {moment(item.created_at).local().format("h:mm A")}
+            </label>
+          </div>
+          <div className="c-col-6 c-cols">
+            <label className="font-size-14">
+              {item.milestones_complete ? item.milestones_complete : 0}
+            </label>
+          </div>
+          <div className="c-col-7 c-cols">
+            <label className="font-size-14">{item.milestones_total || 0}</label>
+          </div>
+          <div className="c-col-8 c-cols">
+            {canMultipleSubmit() ? (
+              <a
+                className="btn btn-primary extra-small btn-fluid-small"
+                onClick={() => multipleSubmit(item)}
+              >
+                Submit Milestones
+              </a>
+            ) : (
+              "-"
+            )}
+          </div>
+        </div>
+      </div>
+      {expand && (
+        <>
+          {item.proposal?.milestones?.map((mile, ind) => (
+            <div className="child-row" key={mile.id}>
+              <div className="infinite-row">
+                <div className="c-col-child-1 c-cols" />
+                <div className="c-col-child-2 c-cols">
+                  <label className="font-size-14 font-weight-700">
+                    Milestone {ind + 1} - {mile.title}
+                  </label>
+                </div>
+                <div className="c-col-child-3 c-cols text-center">
+                  {renderAction(mile, ind)}
+                </div>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+    </>
+  );
 };
 
 class MemberGrant extends Component {
@@ -211,27 +414,10 @@ class MemberGrant extends Component {
     await this.props.dispatch(setActiveModal("milestone-vote"));
   }
 
-  async clickSubmit(item) {
-    const milestones = item.proposal.milestones;
-    const index = item.milestones_submitted;
-    if (!milestones[index]) return;
-
-    const milestone = {
-      index,
-      proposal: item.proposal,
-      milestone: milestones[index],
-    };
-
-    await this.props.dispatch(setMilestoneVoteData(milestone));
-    await this.props.dispatch(setActiveModal("milestone-vote"));
-  }
-
-  startFormalMilestoneVote(grant) {
-    const lastVote = grant.proposal?.votes[grant.proposal.votes.length - 1];
+  clickSubmit(item) {
     this.props.dispatch(
-      startFormalMilestoneVotingUser(
-        grant.proposal_id,
-        lastVote.id,
+      getNotSubmitMilestones(
+        item.proposal_id,
         () => {
           this.props.dispatch(showCanvas());
         },
@@ -239,83 +425,15 @@ class MemberGrant extends Component {
           this.props.dispatch(hideCanvas());
           if (res.success) {
             this.props.dispatch(
-              showAlert(
-                "Formal voting process has been started successfully",
-                "success"
-              )
+              setActiveModal("multiple-milestone-submit", {
+                item,
+                unsubmittedMilestones: res.milestones,
+              })
             );
           }
         }
       )
     );
-  }
-
-  renderAction(item) {
-    // Voting Associate, Associate
-    if (item.status == "active") {
-      if (item.milestones_submitted == 0) {
-        return !item.in_review ? (
-          <a
-            className="btn btn-primary extra-small btn-fluid-small"
-            onClick={() => this.clickSubmit(item)}
-          >
-            Submit Next Milestone
-          </a>
-        ) : (
-          <button
-            className="btn btn-primary extra-small btn-fluid-small"
-            onClick={(e) => e.stopPropagation()}
-          >
-            In review with Admin
-          </button>
-        );
-      } else {
-        // We need to check vote result and decide proceed/wait/restart.
-        const votes = item.proposal.votes;
-        const finalVote = votes[votes.length - 1];
-        if (finalVote.content_type == "milestone") {
-          if (finalVote.result == "success") {
-            if (finalVote.type == "formal") {
-              return !item.in_review ? (
-                <a
-                  className="btn btn-primary extra-small btn-fluid-small"
-                  onClick={() => this.clickSubmit(item)}
-                >
-                  Submit Next Milestone
-                </a>
-              ) : (
-                <button
-                  className="btn btn-primary extra-small btn-fluid-small"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  In review with Admin
-                </button>
-              );
-            }
-            if (finalVote.type == "informal") {
-              return (
-                <a
-                  className="btn btn-primary extra-small btn-fluid-small"
-                  onClick={() => this.startFormalMilestoneVote(item)}
-                >
-                  Start Formal Milestone Vote
-                </a>
-              );
-            }
-          } else if (finalVote.result == "fail") {
-            return (
-              <a
-                className="btn btn-primary extra-small btn-fluid-small"
-                onClick={() => this.clickReSubmit(item, finalVote)}
-              >
-                Re-Submit Milestone
-              </a>
-            );
-          }
-        }
-      }
-    }
-    return <label>-</label>;
   }
 
   showSignDialog(item) {
@@ -346,22 +464,9 @@ class MemberGrant extends Component {
     return <p className="font-size-14 color-success">Completed</p>;
   }
 
-  renderMilestonesComplete(item) {
-    if (item.milestones_complete) {
-      return <p className="font-size-14">{item.milestones_complete}</p>;
-      /*
-      return (
-        <Link to={`/app/proposal/${item.proposal_id}/milestones`}>
-          <u>{item.milestones_complete}</u>
-        </Link>
-      );
-      */
-    }
-    return <p className="font-size-14">0</p>;
-  }
-
-  clickRow(item) {
+  clickRow = (item) => {
     const { history, authUser } = this.props;
+    console.log(123123);
     if (authUser.is_admin || authUser.is_member)
       history.push(`/app/proposal/${item.proposal_id}`);
     else if (authUser.is_participant) {
@@ -374,7 +479,7 @@ class MemberGrant extends Component {
           history.push(`/app/proposal/${item.proposal_id}`);
       }
     }
-  }
+  };
 
   renderProposals() {
     const { proposals } = this.state;
@@ -391,42 +496,15 @@ class MemberGrant extends Component {
     proposals.forEach((item) => {
       items.push(
         <li key={`proposal_${item.id}`}>
-          <div className="infinite-row" onClick={() => this.clickRow(item)}>
-            <div className="c-col-1 c-cols">
-              <label className="font-size-14 font-weight-700">
-                {item.proposal_id}
-              </label>
-            </div>
-            <div className="c-col-2 c-cols">
-              <label className="font-size-14 font-weight-700">
-                {this.renderTitle(item)}
-              </label>
-            </div>
-            <div className="c-col-3 c-cols">{this.renderStatus(item)}</div>
-            <div className="c-col-4 c-cols">
-              <label className="font-size-14">
-                {moment(item.created_at).local().format("M/D/YYYY")}{" "}
-                {moment(item.created_at).local().format("h:mm A")}
-              </label>
-            </div>
-            <div className="c-col-5 c-cols">
-              {this.renderMilestonesComplete(item)}
-            </div>
-            <div className="c-col-6 c-cols">
-              <label className="font-size-14">
-                {item.milestones_total || 0}
-              </label>
-            </div>
-            <div className="c-col-7 c-cols">{this.renderAction(item)}</div>
-          </div>
+          <GrantItem
+            item={item}
+            clickRow={this.clickRow}
+            renderStatus={this.renderStatus}
+          />
         </li>
       );
     });
     return <ul>{items}</ul>;
-  }
-
-  renderTitle(item) {
-    return item.proposal.title;
   }
 
   renderTriangle(key) {
@@ -456,33 +534,34 @@ class MemberGrant extends Component {
     return (
       <div className="infinite-header">
         <div className="infinite-headerInner">
-          <div className="c-col-1 c-cols">
-            <label className="font-size-14">Proposal #</label>
-          </div>
+          <div className="c-col-1 c-cols" />
           <div className="c-col-2 c-cols">
+            <label className="font-size-14">#</label>
+          </div>
+          <div className="c-col-3 c-cols">
             <label className="font-size-14">Title</label>
           </div>
           <div
-            className="c-col-3 c-cols"
+            className="c-col-4 c-cols"
             onClick={() => this.clickHeader("final_grant.status")}
           >
             <label className="font-size-14">Status</label>
             {this.renderTriangle("final_grant.status")}
           </div>
           <div
-            className="c-col-4 c-cols"
+            className="c-col-5 c-cols"
             onClick={() => this.clickHeader("final_grant.created_at")}
           >
             <label className="font-size-14">Start Date</label>
             {this.renderTriangle("final_grant.created_at")}
           </div>
-          <div className="c-col-5 c-cols">
+          <div className="c-col-6 c-cols">
             <label className="font-size-14">Milestones Complete</label>
           </div>
-          <div className="c-col-6 c-cols">
+          <div className="c-col-7 c-cols">
             <label className="font-size-14">Milestones Total</label>
           </div>
-          <div className="c-col-7 c-cols">
+          <div className="c-col-8 c-cols">
             <label className="font-size-14">Action</label>
           </div>
         </div>
@@ -502,7 +581,6 @@ class MemberGrant extends Component {
       >
         <div className="app-infinite-search-wrap">
           <label>Grants</label>
-
           <input
             type="text"
             value={search}

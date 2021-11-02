@@ -3,7 +3,10 @@ import { Tooltip } from "@material-ui/core";
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { GlobalRelativeCanvasComponent } from "../../../../components";
+import {
+  GlobalRelativeCanvasComponent,
+  Checkbox,
+} from "../../../../components";
 import {
   setActiveModal,
   setCustomModalData,
@@ -16,6 +19,9 @@ import {
 import {
   forceWithdrawProposal,
   getPendingGrantOnboardings,
+  resendComplianceReview,
+  resendKycKangaroo,
+  sendKycKangarooByAdmin,
   startFormalVoting,
 } from "../../../../utils/Thunk";
 
@@ -29,6 +35,7 @@ const mapStateToProps = (state) => {
     onboardingTableStatus: state.table.onboardingTableStatus,
   };
 };
+const currentTime = moment(new Date());
 
 class PendingGrants extends Component {
   constructor(props) {
@@ -40,6 +47,7 @@ class PendingGrants extends Component {
       sort_direction: "desc",
       search: "",
       page_id: 1,
+      hide_denied: 0,
       calling: false,
       finished: false,
     };
@@ -118,6 +126,7 @@ class PendingGrants extends Component {
       finished,
       sort_key,
       sort_direction,
+      hide_denied,
       search,
       page_id,
       onboardings,
@@ -130,6 +139,10 @@ class PendingGrants extends Component {
       search,
       page_id,
     };
+
+    if (hide_denied) {
+      params.hide_denied = hide_denied;
+    }
 
     this.props.dispatch(
       getPendingGrantOnboardings(
@@ -181,6 +194,19 @@ class PendingGrants extends Component {
     await this.props.dispatch(setKYCData(user));
     await this.props.dispatch(setActiveModal("review-kyc"));
   }
+
+  hideDenied = (val) => {
+    this.setState({ hide_denied: val ? 1 : 0 }, () => {
+      if (this.timer) {
+        clearTimeout(this.timer);
+        this.timer = null;
+      }
+
+      this.timer = setTimeout(() => {
+        this.reloadTable();
+      }, 500);
+    });
+  };
 
   clickSigned(item) {
     if (
@@ -246,6 +272,24 @@ class PendingGrants extends Component {
     );
   }
 
+  resendCompliance = (item) => {
+    this.props.dispatch(
+      resendComplianceReview(
+        { proposalId: item.proposal_id },
+        () => {
+          this.props.dispatch(showCanvas());
+        },
+        (res) => {
+          this.props.dispatch(hideCanvas());
+          if (res.success) {
+            this.props.dispatch(showAlert("Resend Successfully", "success"));
+            this.reloadTable();
+          }
+        }
+      )
+    );
+  };
+
   renderHeader() {
     return (
       <div className="infinite-header">
@@ -294,13 +338,10 @@ class PendingGrants extends Component {
           <div className="c-col-8 c-cols">
             <label className="font-size-14">KYC/AML</label>
           </div>
-          {/* <div className="c-col-7 c-cols">
-            <label className="font-size-14">Payment Info</label>
-          </div>
-          <div className="c-col-8 c-cols">
-            <label className="font-size-14">Grant Agreement</label>
-          </div> */}
           <div className="c-col-9 c-cols">
+            <label className="font-size-14">Compliance Check</label>
+          </div>
+          <div className="c-col-10 c-cols">
             <label className="font-size-14">Action</label>
           </div>
         </div>
@@ -308,40 +349,172 @@ class PendingGrants extends Component {
     );
   }
 
-  renderKYCStatus(item) {
-    if (!item.shuftipro_status) {
-      const { shuftipro_temp } = item.user;
-      if (shuftipro_temp && shuftipro_temp.status == "booked")
-        return <label className="font-size-14 color-primary">Processing</label>;
-      return <label className="font-size-14">-</label>;
-    }
-
-    if (item.shuftipro_status == "approved")
-      return (
-        <label
-          className="font-size-14 color-success"
-          onClick={() => this.clickKYC(item)}
-        >
-          Pass (View)
-        </label>
-      );
-    if (item.shuftipro_reviewed)
-      return (
-        <label
-          className="font-size-14 color-danger"
-          onClick={() => this.clickKYC(item)}
-        >
-          Fail (View)
-        </label>
-      );
-    return (
-      <label
-        className="font-size-14 color-danger"
-        onClick={() => this.clickKYC(item)}
-      >
-        Fail (Review)
-      </label>
+  resendKYC = (item) => {
+    this.props.dispatch(
+      resendKycKangaroo(
+        { user_id: item.user_id },
+        () => {
+          this.props.dispatch(showCanvas());
+        },
+        (res) => {
+          this.props.dispatch(hideCanvas());
+          if (res.success) {
+            this.props.dispatch(
+              setActiveModal("confirm-kyc-link", { email: item.user?.email })
+            );
+          }
+        }
+      )
     );
+  };
+
+  sendKYC = (item) => {
+    this.props.dispatch(
+      sendKycKangarooByAdmin(
+        { user_id: item.user_id },
+        () => {
+          this.props.dispatch(showCanvas());
+        },
+        (res) => {
+          this.props.dispatch(hideCanvas());
+          if (res.success) {
+            this.reloadTable();
+            this.props.dispatch(
+              setActiveModal("confirm-kyc-link", { email: item.user?.email })
+            );
+          }
+        }
+      )
+    );
+  };
+
+  renderKYCStatus(item) {
+    if (item.user?.shuftipro_temp) {
+      if (!item.user?.shuftipro) {
+        return (
+          <div className="font-size-14 color-primary">
+            <label>Pending</label>
+            <a
+              className="font-size-14 text-underline"
+              onClick={() => this.resendKYC(item)}
+            >
+              resend email
+            </a>
+          </div>
+        );
+      } else if (item.user?.shuftipro.status === "pending") {
+        const duration = moment.duration(
+          currentTime.diff(moment(item.user?.shuftipro.created_at))
+        );
+        const days = Math.floor(duration.asDays());
+        return (
+          <div className="font-size-14 color-primary">
+            <label>In Review</label>
+            <span>{days} days</span>
+          </div>
+        );
+      } else if (item.user?.shuftipro.status === "approved") {
+        return (
+          <div className="font-size-14 color-primary">
+            <label>Approved</label>
+          </div>
+        );
+      } else if (item.user?.shuftipro.status === "denied") {
+        return (
+          <div className="font-size-14 color-primary">
+            <label>Denied</label>
+          </div>
+        );
+      } else {
+        return "";
+      }
+    } else {
+      return (
+        <div className="font-size-14 color-primary">
+          <label>Not submitted</label>
+          <a
+            className="font-size-14 text-underline"
+            onClick={() => this.sendKYC(item)}
+          >
+            Send email
+          </a>
+        </div>
+      );
+    }
+  }
+
+  // renderKYCStatus(item) {
+  //   if (!item.shuftipro_status) {
+  //     const { shuftipro_temp } = item.user;
+  //     if (shuftipro_temp && shuftipro_temp.status == "booked")
+  //       return <label className="font-size-14 color-primary">Processing</label>;
+  //     return <label className="font-size-14">-</label>;
+  //   }
+
+  //   if (item.shuftipro_status == "approved")
+  //     return (
+  //       <label
+  //         className="font-size-14 color-success"
+  //         onClick={() => this.clickKYC(item)}
+  //       >
+  //         Pass (View)
+  //       </label>
+  //     );
+  //   if (item.shuftipro_reviewed)
+  //     return (
+  //       <label
+  //         className="font-size-14 color-danger"
+  //         onClick={() => this.clickKYC(item)}
+  //       >
+  //         Fail (View)
+  //       </label>
+  //     );
+  //   return (
+  //     <label
+  //       className="font-size-14 color-danger"
+  //       onClick={() => this.clickKYC(item)}
+  //     >
+  //       Fail (Review)
+  //     </label>
+  //   );
+  // }
+
+  showReason = (item) => {
+    this.props.dispatch(
+      setActiveModal("show-denied-compliance", item.deny_reason)
+    );
+  };
+
+  renderComplianceStatus(item) {
+    if (item.compliance_status === "pending") {
+      return (
+        <div>
+          <label className="font-size-14">Pending</label>
+          <a
+            className="font-size-14 text-underline"
+            onClick={() => this.resendCompliance(item)}
+          >
+            resend email
+          </a>
+        </div>
+      );
+    }
+    if (item.compliance_status === "denied") {
+      return (
+        <div>
+          <label className="font-size-14">Denied</label>
+          <a
+            className="font-size-14 text-underline"
+            onClick={() => this.showReason(item)}
+          >
+            show reason
+          </a>
+        </div>
+      );
+    }
+    if (item.compliance_status === "approved") {
+      return <label className="font-size-14 color-primary">Approved</label>;
+    }
   }
 
   renderPaymentForm(item) {
@@ -454,7 +627,7 @@ class PendingGrants extends Component {
               <Tooltip title={item.proposal_title} placement="bottom">
                 <label className="font-size-14 font-weight-700">
                   <Link
-                    to={`/app/proposal/${item.id}`}
+                    to={`/app/proposal/${item.proposal_id}`}
                     style={{ color: "inherit" }}
                   >
                     {this.renderTitle(item)}
@@ -465,9 +638,12 @@ class PendingGrants extends Component {
             <div className="c-col-6 c-cols">{item.user.first_name}</div>
             <div className="c-col-7 c-cols">{item.user.last_name}</div>
             <div className="c-col-8 c-cols">{this.renderKYCStatus(item)}</div>
+            <div className="c-col-9 c-cols">
+              {this.renderComplianceStatus(item)}
+            </div>
             {/* <div className="c-col-7 c-cols">{this.renderPaymentForm(item)}</div>
             <div className="c-col-8 c-cols">{this.renderHellosign(item)}</div> */}
-            <div className="c-col-9 c-cols">{this.renderAction(item)}</div>
+            <div className="c-col-10 c-cols">{this.renderAction(item)}</div>
           </div>
         </li>
       );
@@ -485,13 +661,19 @@ class PendingGrants extends Component {
       <div id="app-pending-grants-section" className="app-infinite-box">
         <div className="app-infinite-search-wrap">
           <label>Grant Proposals That Passed Informal Vote</label>
-
-          <input
-            type="text"
-            value={search}
-            onChange={this.handleSearch}
-            placeholder="Search..."
-          />
+          <div className="d-flex">
+            <Checkbox
+              text="Hide denied"
+              onChange={(val) => this.hideDenied(val)}
+            />
+            <input
+              className="ml-4"
+              type="text"
+              value={search}
+              onChange={this.handleSearch}
+              placeholder="Search..."
+            />
+          </div>
         </div>
 
         <div className="infinite-content">

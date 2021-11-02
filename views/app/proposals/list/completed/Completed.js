@@ -8,6 +8,7 @@ import { GlobalRelativeCanvasComponent } from "../../../../../components";
 import { getCompletedProposalsShared } from "../../../../../utils/Thunk";
 import Tooltip from "@material-ui/core/Tooltip";
 import "./completed.scss";
+import { PROPOSAL_TYPES } from "../../../../../utils/enum";
 
 // eslint-disable-next-line no-undef
 const moment = require("moment");
@@ -201,8 +202,8 @@ class CompletedProposals extends Component {
               <label className="font-size-14 d-block">{item.forum_name}</label>
             </div>
             <div className="c-col-3 c-cols">
-              <label className="font-size-14">
-                {item.type == "grant" ? "Grant" : "Simple"}
+              <label className="font-size-14 text-capitalize">
+                {PROPOSAL_TYPES[item.type]}
               </label>
             </div>
             <div className="c-col-4 c-cols">

@@ -15,7 +15,8 @@ class ShowSurveyVoterAnswer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      proposals: [],
+      voted: [],
+      downvoted: [],
     };
   }
 
@@ -24,7 +25,7 @@ class ShowSurveyVoterAnswer extends Component {
     this.props.dispatch(
       getVoterResponse(
         surveyId,
-        user?.user_id,
+        user?.id,
         {},
         () => {
           this.props.dispatch(showCanvas());
@@ -32,7 +33,7 @@ class ShowSurveyVoterAnswer extends Component {
         (res) => {
           this.props.dispatch(hideCanvas());
           if (res.success) {
-            this.setState({ proposals: res.proposals });
+            this.setState({ voted: res.voted, downvoted: res.downvoted });
           }
         }
       )
@@ -46,12 +47,13 @@ class ShowSurveyVoterAnswer extends Component {
   // Render Content
   render() {
     const { user } = this.props.data;
-    const { proposals } = this.state;
+    const { voted, downvoted } = this.state;
     return (
       <div id="show-survey-voter-answer-modal">
         <p className="pb-4">{`User ${user?.email} survey answers for survey #S4`}</p>
+        <h5 className="mt-4 text-left">Votes</h5>
         <ul>
-          {proposals.map((item) => (
+          {voted.map((item) => (
             <li key={item.id}>
               {Helper.ordinalSuffixOf(item.place_choice)} Place -{" "}
               <Link to={`/app/proposal/${item.id}`} onClick={this.hideModal}>
@@ -60,6 +62,24 @@ class ShowSurveyVoterAnswer extends Component {
             </li>
           ))}
         </ul>
+        {downvoted?.length > 0 && (
+          <>
+            <h5 className="mt-4 text-left">Downvotes</h5>
+            <ul>
+              {downvoted.map((item) => (
+                <li key={item.id}>
+                  {Helper.ordinalSuffixOf(item.place_choice)} Place -{" "}
+                  <Link
+                    to={`/app/proposal/${item.id}`}
+                    onClick={this.hideModal}
+                  >
+                    <b>{item.title}</b>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
         <div className="actions">
           <button className="btn btn-primary small" onClick={this.hideModal}>
             Close

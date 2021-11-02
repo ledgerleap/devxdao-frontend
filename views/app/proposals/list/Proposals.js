@@ -32,6 +32,8 @@ class Proposals extends Component {
   }
 
   createGrantProposal = () => {
+    // const { authUser } = this.props;
+    // if (authUser?.shuftipro) {
     this.props.dispatch(
       getProposalDrafts(
         { limit: 1 },
@@ -40,7 +42,7 @@ class Proposals extends Component {
         },
         (res) => {
           this.props.dispatch(hideCanvas());
-          if (res.proposals.length) {
+          if (res.proposals?.length) {
             this.openDraftProposal();
           } else {
             this.gotoNewGrant();
@@ -48,6 +50,9 @@ class Proposals extends Component {
         }
       )
     );
+    // } else {
+    //   this.props.dispatch(setActiveModal("kyc-grant"));
+    // }
   };
 
   gotoNewGrant = () => {
@@ -108,10 +113,19 @@ class Proposals extends Component {
             {authUser.is_member ? (
               <Link
                 to="/app/simple-proposal/new"
-                className="btn btn-primary-outline btn-fluid"
+                className="btn btn-primary-outline btn-fluid mr-2"
               >
                 <Icon.Plus />
                 New Simple Proposal
+              </Link>
+            ) : null}
+            {authUser.is_member ? (
+              <Link
+                to="/app/admin-grant-proposal/new"
+                className="btn btn-primary-outline btn-fluid"
+              >
+                <Icon.Plus />
+                Admin Grant Proposal
               </Link>
             ) : null}
           </div>

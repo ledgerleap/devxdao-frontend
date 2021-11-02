@@ -8,6 +8,7 @@ import Helper from "../../../../utils/Helper";
 import { showAlert } from "../../../../redux/actions";
 
 import "./proposal-milestone.scss";
+import { Fade } from "react-reveal";
 
 const mapStateToProps = () => {
   return {};
@@ -96,138 +97,144 @@ class ProposalMilestone extends Component {
     if (milestones && milestones.length) {
       milestones.forEach((milestone, index) => {
         items.push(
-          <div key={`milestone_${index}`} className="single-milestone-item">
-            <div className="c-form-row">
-              <label className="mt-5 mb-5" style={{ color: "#9B64E6" }}>
-                Milestone #{index + 1}:
-              </label>
-            </div>
-            <div className="row">
-              <div className="col-md-4">
-                <div className="c-form-row">
-                  <label>Title of Milestone (10 word limit)</label>
-                  <input
-                    type="text"
-                    value={milestone.title}
-                    onChange={(e) => this.updateData(e, index, "title")}
-                    required
-                  />
-                </div>
+          <Fade distance={"20px"} bottom duration={100} delay={600}>
+            <div key={`milestone_${index}`} className="single-milestone-item">
+              <div className="c-form-row">
+                <label className="mt-5 mb-5" style={{ color: "#9B64E6" }}>
+                  Milestone #{index + 1}:
+                </label>
               </div>
-              <div className="col-md-4">
-                <div className="c-form-row-deadline">
-                  <label>Milestone Deadline</label>
-                  <div className="dob-picker-wrap">
-                    <DatePicker
-                      className="dob-picker"
-                      value={
-                        milestone.deadline && milestone.deadline != "0000-00-00"
-                          ? moment(milestone.deadline).toDate()
-                          : null
-                      }
-                      onChange={(e) => this.updateData(e, index, "deadline")}
-                      onCalendarClose={() => {}}
-                      calendarIcon={""}
-                      clearIcon={""}
+              <div className="row">
+                <div className="col-md-4">
+                  <div className="c-form-row">
+                    <label>Title of Milestone (10 word limit)</label>
+                    <input
+                      type="text"
+                      value={milestone.title}
+                      onChange={(e) => this.updateData(e, index, "title")}
+                      required
                     />
                   </div>
                 </div>
-              </div>
-              <div className="col-md-4">
-                <div className="c-form-row">
-                  <label>Level of Difficulty</label>
-                  <select
-                    value={milestone.level_difficulty}
-                    onChange={(e) =>
-                      this.updateData(e, index, "level_difficulty")
-                    }
-                    required
-                  >
-                    <option value="">Select Level of Difficulty</option>
-                    <option value="1">1 (Easy)</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5 (Medium)</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10 (Hard)</option>
-                  </select>
+                <div className="col-md-4">
+                  <div className="c-form-row-deadline">
+                    <label>Milestone Deadline</label>
+                    <div className="dob-picker-wrap">
+                      <DatePicker
+                        className="dob-picker"
+                        value={
+                          milestone.deadline &&
+                          milestone.deadline != "0000-00-00"
+                            ? moment(milestone.deadline).toDate()
+                            : null
+                        }
+                        onChange={(e) => this.updateData(e, index, "deadline")}
+                        onCalendarClose={() => {}}
+                        calendarIcon={""}
+                        clearIcon={""}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-4">
+                  <div className="c-form-row">
+                    <label>Level of Difficulty</label>
+                    <select
+                      value={milestone.level_difficulty}
+                      onChange={(e) =>
+                        this.updateData(e, index, "level_difficulty")
+                      }
+                      required
+                    >
+                      <option value="">Select Level of Difficulty</option>
+                      <option value="1">1 (Easy)</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5 (Medium)</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10 (Hard)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
-            {/* Row End */}
-            <div className="c-form-row">
-              <label>Details of what will be delivered in milestone</label>
-              <textarea
-                value={milestone.details}
-                onChange={(e) => this.updateData(e, index, "details")}
-                required
-              ></textarea>
-            </div>
-            <div className="c-form-row">
-              <label>
-                Acceptance criteria: Please enter the specific details on what
-                the deliverable must do to prove this milestone is complete and
-                also detail the KPIs (Key Performance Indicators) for each
-                milestone and your project overall if appropriate. Any KPIs
-                should measure your delivery's performance if KPIs are
-                applicable to your project. This field is where you provide your
-                "definition of done so provide as many details as possible.
-              </label>
-              <textarea
-                value={milestone.criteria}
-                onChange={(e) => this.updateData(e, index, "criteria")}
-                required
-              ></textarea>
-            </div>
-            {/* <div className="c-form-row">
-              <label>{`Please detail the KPIs (Key Performance Indicators) for each milestone and your project overall. Please provide as many details as possible. Any KPIs should measure your delivery's performance.`}</label>
-              <textarea
-                value={milestone.kpi}
-                onChange={(e) => this.updateData(e, index, "kpi")}
-                required
-              ></textarea>
-            </div> */}
-            <div className="c-checkbox-item">
-              <div
-                className="c-checkbox-itemSymbol"
-                onClick={(e) => this.updateData(e, index, "checked")}
-              >
-                {milestone.checked ? (
-                  <Icon.CheckSquare color="#9B64E6" />
-                ) : (
-                  <Icon.Square color="#9B64E6" />
-                )}
+              {/* Row End */}
+              <div className="c-form-row">
+                <label>Details of what will be delivered in milestone</label>
+                <textarea
+                  value={milestone.details}
+                  onChange={(e) => this.updateData(e, index, "details")}
+                  required
+                ></textarea>
               </div>
-              <label
-                className="font-size-14"
-                onClick={(e) => this.updateData(e, index, "checked")}
-              >
-                My entry{" "}
-                <i>
-                  <b>clearly</b>
-                </i>{" "}
-                states the "definition of done" to acceptance criteria and KPIs
-                for milestones
-              </label>
+              <div className="c-form-row">
+                <label>
+                  Acceptance criteria: Please enter the specific details on what
+                  the deliverable must do to prove this milestone is complete
+                  and also detail the KPIs (Key Performance Indicators) for each
+                  milestone and your project overall if appropriate. Any KPIs
+                  should measure your delivery's performance if KPIs are
+                  applicable to your project. This field is where you provide
+                  your "definition of done so provide as many details as
+                  possible.
+                </label>
+                <textarea
+                  value={milestone.criteria}
+                  onChange={(e) => this.updateData(e, index, "criteria")}
+                  required
+                ></textarea>
+              </div>
+              {/* <div className="c-form-row">
+                <label>{`Please detail the KPIs (Key Performance Indicators) for each milestone and your project overall. Please provide as many details as possible. Any KPIs should measure your delivery's performance.`}</label>
+                <textarea
+                  value={milestone.kpi}
+                  onChange={(e) => this.updateData(e, index, "kpi")}
+                  required
+                ></textarea>
+              </div> */}
+              <div className="c-checkbox-item">
+                <div
+                  className="c-checkbox-itemSymbol"
+                  onClick={(e) => this.updateData(e, index, "checked")}
+                >
+                  {milestone.checked ? (
+                    <Icon.CheckSquare color="#9B64E6" />
+                  ) : (
+                    <Icon.Square color="#9B64E6" />
+                  )}
+                </div>
+                <label
+                  className="font-size-14"
+                  onClick={(e) => this.updateData(e, index, "checked")}
+                >
+                  My entry{" "}
+                  <i>
+                    <b>clearly</b>
+                  </i>{" "}
+                  states the "definition of done" to acceptance criteria and
+                  KPIs for milestones
+                </label>
+              </div>
+              <div className="c-form-row">
+                <label>
+                  Grant portion requested for this milestone in Euros
+                </label>
+                <input
+                  type="text"
+                  value={
+                    milestone.grant
+                      ? Helper.formatPriceNumber(milestone.grant)
+                      : ""
+                  }
+                  onChange={(e) => this.updateFloatField(e, index, "grant")}
+                  required
+                />
+              </div>
             </div>
-            <div className="c-form-row">
-              <label>Grant portion requested for this milestone in Euros</label>
-              <input
-                type="text"
-                value={
-                  milestone.grant
-                    ? Helper.formatPriceNumber(milestone.grant)
-                    : ""
-                }
-                onChange={(e) => this.updateFloatField(e, index, "grant")}
-                required
-              />
-            </div>
-          </div>
+          </Fade>
         );
       });
     }
@@ -280,22 +287,29 @@ class ProposalMilestone extends Component {
   render() {
     return (
       <section id="proposal-milestone-section">
-        <div className="c-form-row">
-          <label>{`Projects are typically divided into milestones. Please propose the milestones in which the total project will be delivered:`}</label>
-        </div>
-        {this.renderMilestones()}
-        {this.props.showAction && (
-          <div className="new-proposal-button-wrap">
-            <a className="btn btn-primary large" onClick={this.addMilestone}>
-              <Icon.Plus style={{ marginRight: "5px" }} />
-              Add Milestone
-            </a>
-            <a className="btn btn-danger large" onClick={this.removeMilestone}>
-              <Icon.Minus style={{ marginRight: "5px" }} />
-              Remove Milestone
-            </a>
+        <Fade distance={"20px"} bottom duration={100} delay={600}>
+          <div className="c-form-row">
+            <label>{`Projects are typically divided into milestones. Please propose the milestones in which the total project will be delivered:`}</label>
           </div>
-        )}
+        </Fade>
+        {this.renderMilestones()}
+        <Fade distance={"20px"} bottom duration={100} delay={600}>
+          {this.props.showAction && (
+            <div className="new-proposal-button-wrap">
+              <a className="btn btn-primary large" onClick={this.addMilestone}>
+                <Icon.Plus style={{ marginRight: "5px" }} />
+                Add Milestone
+              </a>
+              <a
+                className="btn btn-danger large"
+                onClick={this.removeMilestone}
+              >
+                <Icon.Minus style={{ marginRight: "5px" }} />
+                Remove Milestone
+              </a>
+            </div>
+          )}
+        </Fade>
 
         {this.renderAlert()}
       </section>

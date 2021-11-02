@@ -35,7 +35,7 @@ import {
   activateGrant,
 } from "../../utils/Thunk";
 import { MASTER_PASSWORD } from "../../utils/Constant";
-
+import GrantLogsTable from "./grant-logs";
 import "./custom-modal.scss";
 
 // eslint-disable-next-line no-undef
@@ -1034,7 +1034,7 @@ class CustomModal extends Component {
       <Fragment>
         <h2>{modalData.title}</h2>
         <ul>
-          {data.map((item, index) => {
+          {data?.signture_grants?.map((item, index) => {
             const signedAt = moment(item.updated_at)
               .local()
               .format("M/D/YYYY h:mm A");
@@ -1056,6 +1056,21 @@ class CustomModal extends Component {
             );
           })}
         </ul>
+        <h2>Remind / Resend / API tracker table</h2>
+        <GrantLogsTable grantLogs={data?.grant_logs} />
+        {/* {data?.grant_logs.length === 0 && <p>No item</p>}
+        <ul>
+          {data?.grant_logs?.map((item, index) => {
+            return (
+              <li key={`log_${index}`} className="mb-4">
+                <p>
+                  {item.email} clicked <b>{item.type}</b> on{" "}
+                  {moment(item.created_at).local().format("D/M/YYYY h:mm A")}
+                </p>
+              </li>
+            );
+          })}
+        </ul> */}
       </Fragment>
     );
   }

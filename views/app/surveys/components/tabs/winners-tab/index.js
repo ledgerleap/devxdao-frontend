@@ -82,7 +82,7 @@ class WinnersTab extends Component {
     return (
       <div className="h-100 winner-page">
         <Fade distance={"20px"} bottom duration={300} delay={600}>
-          <section className="h-100 app-infinite-box mb-4">
+          <section className="h-100 app-infinite-box">
             <div className="app-infinite-search-wrap">
               <label>Survey Winners</label>
               <div className="d-flex align-items-center">
@@ -101,9 +101,9 @@ class WinnersTab extends Component {
                     }}
                   >
                     <option value="">Spot #</option>
-                    {[1, 2, 3, 4, 5].map((x, i) => (
-                      <option key={`option1_${i}`} value={x}>
-                        {x}
+                    {[...Array(10).keys()].map((x) => (
+                      <option key={`option1_${x + 1}`} value={x + 1}>
+                        {x + 1}
                       </option>
                     ))}
                   </select>

@@ -13,6 +13,8 @@ import ResetKYCModal from "./reset-kyc/ResetKYC";
 import PreRegisterActionModal from "./pre-register-action/PreRegisterAction";
 import StartHellosignModal from "./start-hellosign/StartHellosign";
 import StartCheckSystemModal from "./start-check-system/StartCheckSystem";
+import StartKYCModal from "./start-kyc/StartKyc";
+import ResendKycModal from "./resend-kyc/ResendKyc";
 import AdminToolsModal from "./admin-tools/AdminTools";
 import SessionTimeoutModal from "./session-timeout/SessionTimeout";
 import CancelActiveSurveyModal from "./cancel-active-survey/CancelActiveSurvey";
@@ -26,7 +28,12 @@ import AskUndoRevokeAdminModal from "./ask-undo-revoke-admin/AskUndoRevokeAdmin"
 import HelpModal from "./help/Help";
 import MilestoneVoteModal from "./milestone-vote/MilestoneVote";
 import DraftProposalsModal from "./draft-proposals/DraftProposals";
+import ConfirmKYCLinkModal from "./confirm-kyc-link/ConfirmKYCLink";
+import KycErrorModal from "./kyc-error/KycError";
+import KycGrantModal from "./kyc-grant/KycGrant";
+import ShowDeniedComplianceModal from "./show-denied-compliance/ShowDeniedCompliance";
 import ShuftiRefChangeModal from "./shufti-ref-change/ShuftiRefChange";
+import MultipleMilestoneSubmitModal from "./multiple-milestone-submit/MultipleMilestoneSubmit";
 
 export {
   UserReviewModal,
@@ -45,6 +52,7 @@ export {
   ResetKYCModal,
   PreRegisterActionModal,
   StartCheckSystemModal,
+  StartKYCModal,
   StartHellosignModal,
   HelpModal,
   AdminToolsModal,
@@ -52,10 +60,16 @@ export {
   ListVoterSurveyModal,
   ShowSurveyVoterAnswerModal,
   CancelActiveSurveyModal,
+  MultipleMilestoneSubmitModal,
   MilestoneRejectionModal,
   MilestoneVoteModal,
   StartMilestoneModal,
   AskRevokeAdminModal,
   DraftProposalsModal,
   AskUndoRevokeAdminModal,
+  ConfirmKYCLinkModal,
+  KycErrorModal,
+  KycGrantModal,
+  ResendKycModal,
+  ShowDeniedComplianceModal,
 };

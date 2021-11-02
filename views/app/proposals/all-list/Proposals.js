@@ -11,6 +11,7 @@ import { GlobalRelativeCanvasComponent } from "../../../../components";
 import Tooltip from "@material-ui/core/Tooltip";
 import "./proposals.scss";
 import { hideCanvas, showCanvas } from "../../../../redux/actions";
+import { PROPOSAL_TYPES } from "../../../../utils/enum";
 
 // eslint-disable-next-line no-undef
 const moment = require("moment");
@@ -319,8 +320,8 @@ class Proposals extends Component {
               <label className="font-size-14 d-block">{item.telegram}</label>
             </div>
             <div className="c-col-4 c-cols">
-              <label className="font-size-14">
-                {item.type == "grant" ? "Grant" : "Simple"}
+              <label className="font-size-14 text-capitalize">
+                {PROPOSAL_TYPES[item.type]}
               </label>
             </div>
             <div className="c-col-5 c-cols">{this.renderEuro(item)}</div>

@@ -5,6 +5,7 @@ import { Fade } from "react-reveal";
 import { PageHeaderComponent } from "../../../components";
 import "./style.scss";
 import SurveyVotesTable from "./components/tables/survey-votes";
+import SurveyDownVotesTable from "./components/tables/survey-downvotes";
 import {
   hideCanvas,
   setActiveModal,
@@ -85,7 +86,7 @@ class SurveyDetail extends Component {
 
   showAnswer = () => {
     const { currentVoter, surveyId, voters } = this.state;
-    const temp = voters.find((x) => +x.user_id === +currentVoter);
+    const temp = voters.find((x) => x.email === currentVoter);
     this.props.dispatch(
       setActiveModal("show-survey-voter-answer", {
         surveyId,
@@ -172,13 +173,42 @@ class SurveyDetail extends Component {
                       ))}
                   </ul>
                 </div>
+                {+surveyData?.downvote === 1 && (
+                  <>
+                    <div className="app-infinite-search-wrap">
+                      <h4>Downvotes</h4>
+                    </div>
+                    <div className="pb-3 pl-5 pr-3">
+                      <ul>
+                        {surveyData?.survey_downvote_ranks
+                          .filter((x) => x.is_winner)
+                          .map((item) => (
+                            <li className="py-2" key={item.id}>
+                              {Helper.ordinalSuffixOf(item.rank)} Place -{" "}
+                              <Link to={`/app/proposal/${item.proposal?.id}`}>
+                                <b>{item.proposal?.title}</b>
+                              </Link>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  </>
+                )}
               </>
             )}
             {surveyId && (
-              <SurveyVotesTable
-                id={surveyId}
-                cols={surveyData?.number_response}
-              />
+              <>
+                <SurveyVotesTable
+                  id={surveyId}
+                  cols={surveyData?.number_response}
+                />
+                {+surveyData?.downvote === 1 && (
+                  <SurveyDownVotesTable
+                    id={surveyId}
+                    cols={surveyData?.number_response}
+                  />
+                )}
+              </>
             )}
             <div className="app-infinite-search-wrap">
               <h4>View survey responses by user</h4>

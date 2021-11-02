@@ -67,7 +67,7 @@ class SurveyVotesTable extends Component {
 
   openFullPageView() {
     const { history } = this.props;
-    history.push(`/app/surveys/${this.props.id}/full-page`);
+    history.push(`/app/surveys/${this.props.id}/full-page?status=upvoted`);
   }
 
   startTracking() {
@@ -167,7 +167,7 @@ class SurveyVotesTable extends Component {
           const url = window.URL.createObjectURL(new Blob([res]));
           const link = document.createElement("a");
           link.href = url;
-          link.setAttribute("download", "surveying.csv");
+          link.setAttribute("download", "upvote-survey.csv");
           document.body.appendChild(link);
           link.click();
           this.props.dispatch(hideCanvas());

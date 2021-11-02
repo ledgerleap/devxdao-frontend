@@ -1,8 +1,10 @@
-export const HELLOSIGN_V3_KEY = "";
+export const HELLOSIGN_V3_KEY =
+  "";
 export const HELLOSIGN_CLIENT_ID = "";
 export const HELLOSIGN_DOMAIN = "portal.devxdao.com";
 
-export const ETH_SECRET_CODE = "";
+export const ETH_SECRET_CODE =
+  "";
 export const MASTER_PASSWORD = "";
 
 export const STRIPE_MODE = "live";
@@ -357,6 +359,8 @@ export const OP_WHAT_SECTION_SIMPLE_ACTIONS = [
   "is_company_or_organization_update",
   "have_mentor_update",
   "files_update",
+  "total_grant_update",
+  "things_delivered_update",
 ];
 
 export const OP_WHAT_SECTION_COMPLICATE_ACTIONS = [
@@ -405,6 +409,8 @@ export const OP_SCOPES = {
   explanation_goal: "Explanation goal",
   is_company_or_organization: "Payments for this work",
   have_mentor: "Mentor",
+  total_grant: "Euro amount requested",
+  things_delivered: "Delivered for the DxD/ETA",
 };
 
 export const DECIMALS = 5;

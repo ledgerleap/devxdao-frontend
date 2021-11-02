@@ -4,7 +4,7 @@ import * as Icon from "react-feather";
 import { withRouter, Redirect } from "react-router-dom";
 import { Fade } from "react-reveal";
 import SidebarLayout from "../sidebar/Sidebar";
-import { showSidebar, hideSidebar } from "../../redux/actions";
+import { showSidebar, hideSidebar, setActiveModal } from "../../redux/actions";
 import { AuthAppRoutes } from "../../routes";
 import { BRAND } from "../../utils/Constant";
 
@@ -43,6 +43,52 @@ class AuthApp extends Component {
     else if (authUser.is_participant) return "Associate";
     else if (authUser.is_guest) return "Guest";
     return "";
+  }
+
+  startKYC = () => {
+    this.props.dispatch(setActiveModal("start-kyc"));
+  };
+
+  kycError = () => {
+    this.props.dispatch(setActiveModal("kyc-error"));
+  };
+
+  renderKycStatus() {
+    const { auth: authUser } = this.props;
+    if (!authUser.shuftipro) {
+      return (
+        // <a onClick={this.startKYC} style={{ cursor: "pointer" }}>
+        <span className="text-underline">Not submitted</span>
+        // </a>
+      );
+    }
+    if (authUser.shuftipro?.status === "pending") {
+      return <span>Pending</span>;
+    }
+    if (
+      authUser.shuftipro?.status === "approved" &&
+      authUser.shuftipro?.manual_approved_at
+    ) {
+      return <span>Manual Review</span>;
+    }
+    if (authUser.shuftipro?.status === "approved") {
+      return <span>Accepted</span>;
+    }
+    if (authUser.shuftipro?.status === "error") {
+      return (
+        <span>
+          Error{" "}
+          <a
+            className="text-underline"
+            onClick={this.kycError}
+            style={{ cursor: "pointer" }}
+          >
+            (more info)
+          </a>
+        </span>
+      );
+    }
+    return <span>Submitted</span>;
   }
 
   render() {
@@ -86,9 +132,14 @@ class AuthApp extends Component {
                   <p>Welcome, {authUser.first_name}</p>
                 </Fade>
                 <Fade distance={"20px"} bottom duration={500} delay={500}>
-                  <label>
-                    User Type: <span>{this.renderRole()}</span>
-                  </label>
+                  <>
+                    <label>
+                      User Type: <span>{this.renderRole()}</span>
+                    </label>
+                    {!authUser?.is_super_admin && !authUser?.is_admin && (
+                      <label>KYC status: {this.renderKycStatus()}</label>
+                    )}
+                  </>
                 </Fade>
               </div>
             </div>

@@ -18,8 +18,14 @@ import {
   StartHellosignModal,
   HelpModal,
   MilestoneVoteModal,
+  KycErrorModal,
+  KycGrantModal,
   StartCheckSystemModal,
+  ConfirmKYCLinkModal,
+  StartKYCModal,
+  ResendKycModal,
   ViewPaymentFormModal,
+  MultipleMilestoneSubmitModal,
   ResetKYCModal,
   AdminToolsModal,
   ShuftiRefChangeModal,
@@ -33,6 +39,7 @@ import {
   DraftProposalsModal,
   ShowSurveyVoterAnswerModal,
   ListVoterSurveyModal,
+  ShowDeniedComplianceModal,
 } from "../modals";
 
 const mapStateToProps = (state) => {
@@ -64,8 +71,6 @@ class Global extends Component {
   }
 
   checkHelloSign() {
-    // eslint-disable-next-line no-undef
-    // if (process.env.NEXT_PUBLIC_NODE_ENV === "production") {
     const { authUser } = this.props;
     const { profile } = authUser;
     if (
@@ -73,16 +78,14 @@ class Global extends Component {
       authUser.can_access &&
       authUser.email_verified &&
       profile &&
-      profile.id &&
-      !profile.step_review
+      profile.id
     ) {
+      if (!profile.step_review) {
+        this.props.dispatch(setActiveModal("start-checksystem"));
+      }
       // Needs to do Hello Sign
       // this.props.dispatch(setActiveModal("start-hellosign"));
-
-      // Check system
-      this.props.dispatch(setActiveModal("start-checksystem"));
     }
-    // }
   }
 
   hideAlert = () => {
@@ -133,6 +136,8 @@ class Global extends Component {
               <ViewPaymentFormModal />
             ) : activeModal == "review-kyc" ? (
               <ReviewKYCModal />
+            ) : activeModal == "show-denied-compliance" ? (
+              <ShowDeniedComplianceModal data={this.props.modalData} />
             ) : activeModal == "reset-kyc" ? (
               <ResetKYCModal />
             ) : activeModal == "pre-register-action" ? (
@@ -141,6 +146,16 @@ class Global extends Component {
               <StartHellosignModal />
             ) : activeModal == "start-checksystem" ? (
               <StartCheckSystemModal />
+            ) : activeModal == "start-kyc" ? (
+              <StartKYCModal />
+            ) : activeModal == "resend-kyc" ? (
+              <ResendKycModal />
+            ) : activeModal == "kyc-error" ? (
+              <KycErrorModal />
+            ) : activeModal == "kyc-grant" ? (
+              <KycGrantModal />
+            ) : activeModal == "multiple-milestone-submit" ? (
+              <MultipleMilestoneSubmitModal data={this.props.modalData} />
             ) : activeModal == "admin-tools" ? (
               <AdminToolsModal data={this.props.modalData} />
             ) : activeModal == "shufti-ref-change" ? (
@@ -153,6 +168,8 @@ class Global extends Component {
               <ListVoterSurveyModal data={this.props.modalData} />
             ) : activeModal == "cancel-active-survey" ? (
               <CancelActiveSurveyModal data={this.props.modalData} />
+            ) : activeModal == "confirm-kyc-link" ? (
+              <ConfirmKYCLinkModal data={this.props.modalData} />
             ) : activeModal == "draft-proposals" ? (
               <DraftProposalsModal />
             ) : activeModal == "add-admin-box" ? (
@@ -168,7 +185,7 @@ class Global extends Component {
             ) : activeModal == "help" ? (
               <HelpModal />
             ) : activeModal == "milestone-vote" ? (
-              <MilestoneVoteModal />
+              <MilestoneVoteModal data={this.props.modalData} />
             ) : null}
           </div>
         ) : null}

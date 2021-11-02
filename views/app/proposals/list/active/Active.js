@@ -6,6 +6,7 @@ import { Fade } from "react-reveal";
 import { GlobalRelativeCanvasComponent } from "../../../../../components";
 import Helper from "../../../../../utils/Helper";
 import { getActiveProposalsShared } from "../../../../../utils/Thunk";
+import { PROPOSAL_TYPES } from "../../../../../utils/enum";
 import Tooltip from "@material-ui/core/Tooltip";
 import {
   setActiveModal,
@@ -367,8 +368,8 @@ class ActiveProposals extends Component {
               </p>
             </div>
             <div className="c-col-2 c-cols" onClick={() => this.clickRow(item)}>
-              <label className="font-size-14">
-                {item.type == "grant" ? "Grant" : "Simple"}
+              <label className="font-size-14 text-capitalize">
+                {PROPOSAL_TYPES[item.type]}
               </label>
             </div>
             <div className="c-col-3 c-cols">{this.renderStatus(item)}</div>

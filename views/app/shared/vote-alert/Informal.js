@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardBody,
 } from "../../../../components";
-import Helper from "../../../../utils/Helper";
+import { BALLOT_TYPES } from "../../../../utils/enum";
 
 // eslint-disable-next-line no-undef
 const moment = require("moment");
@@ -140,7 +140,7 @@ class Informal extends Component {
 
     const value = +stakeAmount;
 
-    if (value < 0 || value > max) {
+    if (value <= 0 || value > max) {
       this.props.dispatch(
         showAlert(
           `Please input value greater than 0 to ${max?.toFixed?.(DECIMALS)}`
@@ -180,7 +180,7 @@ class Informal extends Component {
     // if (value && isNaN(value)) value = "";
     // if (value) value = parseInt(value).toString();
     // if (value && parseInt(value) < 0) value = "";
-    if (value && +value <= 0) value = "";
+    if (value && +value < 0) value = "";
 
     this.setState({ stakeAmount: value });
   };
@@ -262,7 +262,7 @@ class Informal extends Component {
           </span>
         </div>
         <p className="font-size-14 mt-2">
-          Code reviewer: <b>{milestone.milestone_review?.user.email}</b>
+          Code reviewer: <b>{milestone.milestone_review?.user?.email}</b>
         </p>
         <p className="font-size-14 mt-2">
           Review date:
@@ -304,7 +304,7 @@ class Informal extends Component {
     let quorum_rate = 0;
     if (informalVote.content_type == "grant")
       quorum_rate = settings.quorum_rate || 0;
-    else if (informalVote.content_type == "simple")
+    else if (["simple", "admin-grant"].includes(informalVote.content_type))
       quorum_rate = settings.quorum_rate_simple || 0;
     else quorum_rate = settings.quorum_rate_milestone || 0;
 
@@ -319,15 +319,8 @@ class Informal extends Component {
           className="app-simple-section mt-3"
           style={{ flexDirection: "column" }}
         >
-          <p className="font-size-14">
-            Informal Vote Type:{" "}
-            <b>
-              {informalVote.content_type == "grant"
-                ? "Grant"
-                : informalVote.content_type == "simple"
-                ? "Simple"
-                : "Milestone"}
-            </b>
+          <p className="font-size-14 text-capitalize">
+            Informal Vote Type: <b>{BALLOT_TYPES[informalVote.content_type]}</b>
           </p>
           <p className="font-size-14 mt-2">
             This ballot requires <b>{quorum_rate}%</b> of Voting Associates to
@@ -357,7 +350,13 @@ class Informal extends Component {
     const currentMilestone = proposal?.milestones.find(
       (x) => x.id === vote.milestone_id
     );
-    const data = currentMilestone;
+    let data;
+    if (currentMilestone?.milestone_review.length > 0) {
+      data =
+        currentMilestone?.milestone_review[
+          currentMilestone?.milestone_review?.length - 1
+        ];
+    }
 
     let voted = false;
     if (proposal.voteResults && proposal.voteResults.length) {
@@ -447,7 +446,10 @@ class Informal extends Component {
           </form>
         ) : null}
         {vote.content_type === "milestone" && data?.milestone_check_list && (
-          <Card className="mt-3 mw-100">
+          <Card
+            className="mt-3 mw-100"
+            isAutoExpand={!!data?.milestone_check_list?.addition_note}
+          >
             <CardHeader>
               <div
                 className="app-simple-section__titleInner w-100"
@@ -508,7 +510,7 @@ class Informal extends Component {
               </div>
             </CardPreview>
             <CardBody>
-              <div>
+              <div className="pt-4">
                 <div>
                   <Checkbox
                     value={true}
@@ -680,7 +682,7 @@ class Informal extends Component {
                   <div className="my-3">
                     <p className="padding-notes">
                       Program manager reviewer email:
-                      <span className="pl-2">{data?.admin_reviewer_email}</span>
+                      <span className="pl-2">{data?.user?.email}</span>
                     </p>
                   </div>
                 </div>
@@ -688,44 +690,6 @@ class Informal extends Component {
             </CardBody>
           </Card>
         )}
-        {data?.milestone_submit_histories?.length > 0 &&
-          data?.milestone_submit_histories?.map((item, index) => (
-            <Card className="mt-3 mw-100" key={index}>
-              <CardHeader>
-                <div
-                  className="app-simple-section__titleInner w-100"
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <div>
-                    <label className="pr-2">
-                      {`Milestone ${item.milestone_position} - Submission ${item.time_submit}`}
-                    </label>
-                    <Icon.Info size={16} />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardBody>
-                <div className="py-3">
-                  <label>
-                    <b>Milestone Title:</b>
-                  </label>
-                  <p>{data.title}</p>
-                </div>
-                <div className="pb-3">
-                  <label>
-                    <b>Grant Protion:</b>
-                  </label>
-                  <p>{Helper.formatPriceNumber(data.grant || "", "€")}</p>
-                </div>
-                <div className="pb-3">
-                  <label>
-                    <b>Milestone Submission URL:</b>
-                  </label>
-                  <p>{item.url}</p>
-                </div>
-              </CardBody>
-            </Card>
-          ))}
       </div>
     );
   }

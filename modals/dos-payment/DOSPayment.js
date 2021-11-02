@@ -293,7 +293,8 @@ class DOSPayment extends Component {
           Available Reputation: <b>{rep?.toFixed?.(DECIMALS)}</b>
         </label>
         <label className="d-block font-size-14 mt-1">
-          Max Reputation for Staking (50%): <b>{max?.toFixed?.(DECIMALS)}</b>
+          Max Reputation for Staking (50%):
+          <b> {parseFloat(max)?.toFixed?.(DECIMALS)}</b>
         </label>
       </div>
     );

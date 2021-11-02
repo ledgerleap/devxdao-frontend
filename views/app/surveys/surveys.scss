@@ -2,6 +2,10 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 0;
   #app-discussions-section {
     height: 100%;
   }

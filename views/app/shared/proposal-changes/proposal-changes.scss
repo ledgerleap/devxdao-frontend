@@ -23,7 +23,8 @@
     }
 
     > label {
-      flex: 0 0 calc(100% - 400px);
+      // flex: 0 0 calc(100% - 400px);
+      flex: 1;
       padding-left: 15px;
       padding-right: 20px;
       position: relative;

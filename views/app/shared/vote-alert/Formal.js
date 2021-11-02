@@ -16,7 +16,7 @@ import {
   CardPreview,
   CardBody,
 } from "../../../../components";
-import Helper from "../../../../utils/Helper";
+import { BALLOT_TYPES } from "../../../../utils/enum";
 
 // eslint-disable-next-line no-undef
 const moment = require("moment");
@@ -181,7 +181,7 @@ class Formal extends Component {
 
     const value = +stakeAmount;
 
-    if (value < 0 || value > max) {
+    if (value <= 0 || value > max) {
       this.props.dispatch(
         showAlert(
           `Please input value greater than 0 to ${+max?.toFixed(DECIMALS)}`
@@ -216,7 +216,7 @@ class Formal extends Component {
     let value = e.target.value;
     // if (value && isNaN(value)) value = "";
     // if (value) value = parseInt(value).toString();
-    if (value && +value <= 0) value = "";
+    if (value && +value < 0) value = "";
 
     this.setState({ stakeAmount: value });
   };
@@ -253,7 +253,7 @@ class Formal extends Component {
 
   renderForm() {
     const { stakeAmount } = this.state;
-    const { proposal, vote, authUser } = this.props;
+    const { proposal, vote, informalVote, authUser } = this.props;
 
     let voted = false;
     if (proposal.voteResults && proposal.voteResults.length) {
@@ -264,19 +264,36 @@ class Formal extends Component {
         }
       }
     }
-    const isFormalVotingLive =
-      proposal.status == "approved" &&
-      proposal.votes.length > 1 &&
-      proposal.votes[proposal.votes.length - 1].status == "active" &&
-      proposal.votes[proposal.votes.length - 1].type == "formal";
+    const isMilestoneVote = vote.content_type === "milestone";
+    let isFormalVotingLive;
+    if (isMilestoneVote) {
+      isFormalVotingLive =
+        proposal.status == "approved" &&
+        proposal.votes.length > 1 &&
+        vote.status == "active" &&
+        vote.type == "formal";
+    } else {
+      isFormalVotingLive =
+        proposal.status == "approved" &&
+        proposal.votes.length > 1 &&
+        proposal.votes[proposal.votes.length - 1].status == "active" &&
+        proposal.votes[proposal.votes.length - 1].type == "formal";
+    }
 
     if (!voted && authUser.id != proposal.user_id && authUser.is_member) {
       if (isFormalVotingLive) {
-        const isVotedWhenInformal = proposal.votes[
-          proposal.votes.length - 2
-        ].results
-          .map((x) => x.user_id)
-          .includes(authUser.id);
+        let isVotedWhenInformal;
+        if (isMilestoneVote) {
+          isVotedWhenInformal = informalVote.results
+            .map((x) => x.user_id)
+            .includes(authUser.id);
+        } else {
+          isVotedWhenInformal = proposal.votes[
+            proposal.votes.length - 2
+          ].results
+            .map((x) => x.user_id)
+            .includes(authUser.id);
+        }
         if (!isVotedWhenInformal) return null;
       }
       return (
@@ -388,7 +405,7 @@ class Formal extends Component {
     let quorum_rate = 0;
     if (formalVote.content_type == "grant")
       quorum_rate = settings.quorum_rate || 0;
-    else if (formalVote.content_type == "simple")
+    else if (["simple", "admin-grant"].includes(formalVote.content_type))
       quorum_rate = settings.quorum_rate_simple || 0;
     else quorum_rate = settings.quorum_rate_milestone || 0;
 
@@ -402,15 +419,8 @@ class Formal extends Component {
         className="app-simple-section mt-3"
         style={{ flexDirection: "column" }}
       >
-        <p className="font-size-14">
-          Formal Vote Type:{" "}
-          <b>
-            {formalVote.content_type == "grant"
-              ? "Grant"
-              : formalVote.content_type == "simple"
-              ? "Simple"
-              : "Milestone"}
-          </b>
+        <p className="font-size-14 text-capitalize">
+          Formal Vote Type: <b>{BALLOT_TYPES[formalVote.content_type]}</b>
         </p>
         <p className="font-size-14 mt-2">
           This ballot requires <b>{quorum_rate}%</b> of Voting Associates to
@@ -435,15 +445,19 @@ class Formal extends Component {
   render() {
     const { day, hours, min, secs, forP, againstP } = this.state;
     const { informalVote, proposal, authUser, vote } = this.props;
-
     const currentMilestone = proposal?.milestones.find(
       (x) => x.id === vote.milestone_id
     );
-    const data = currentMilestone;
+    let data;
+    if (currentMilestone?.milestone_review.length > 0) {
+      data =
+        currentMilestone?.milestone_review[
+          currentMilestone?.milestone_review?.length - 1
+        ];
+    }
     let link = `/app/proposal/${informalVote.proposal_id}/informal-vote`;
     if (informalVote.content_type == "milestone")
       link = `/app/proposal/${informalVote.proposal_id}/milestone-vote/${informalVote.id}`;
-
     return (
       <div id="app-spd-formal-process-wrap">
         <div className="d-flex justify-content-end mb-3 ">
@@ -499,7 +513,10 @@ class Formal extends Component {
         {this.renderVoteInfo()}
         {this.renderForm()}
         {vote.content_type === "milestone" && data?.milestone_check_list && (
-          <Card className="mt-3 mw-100">
+          <Card
+            className="mt-3 mw-100"
+            isAutoExpand={!!data?.milestone_check_list?.addition_note}
+          >
             <CardHeader>
               <div
                 className="app-simple-section__titleInner w-100"
@@ -560,7 +577,7 @@ class Formal extends Component {
               </div>
             </CardPreview>
             <CardBody>
-              <div>
+              <div className="pt-4">
                 <div>
                   <Checkbox
                     value={true}
@@ -732,7 +749,7 @@ class Formal extends Component {
                   <div className="my-3">
                     <p className="padding-notes">
                       Program manager reviewer email:
-                      <span className="pl-2">{data?.admin_reviewer_email}</span>
+                      <span className="pl-2">{data?.user?.email}</span>
                     </p>
                   </div>
                 </div>
@@ -740,44 +757,6 @@ class Formal extends Component {
             </CardBody>
           </Card>
         )}
-        {data?.milestone_submit_histories?.length > 0 &&
-          data?.milestone_submit_histories?.map((item, index) => (
-            <Card className="mt-3 mw-100" key={index}>
-              <CardHeader>
-                <div
-                  className="app-simple-section__titleInner w-100"
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <div>
-                    <label className="pr-2">
-                      {`Milestone ${item.milestone_position} - Submission ${item.time_submit}`}
-                    </label>
-                    <Icon.Info size={16} />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardBody>
-                <div className="py-3">
-                  <label>
-                    <b>Milestone Title:</b>
-                  </label>
-                  <p>{data.title}</p>
-                </div>
-                <div className="pb-3">
-                  <label>
-                    <b>Grant Protion:</b>
-                  </label>
-                  <p>{Helper.formatPriceNumber(data.grant || "", "€")}</p>
-                </div>
-                <div className="pb-3">
-                  <label>
-                    <b>Milestone Submission URL:</b>
-                  </label>
-                  <p>{item.url}</p>
-                </div>
-              </CardBody>
-            </Card>
-          ))}
       </div>
     );
   }

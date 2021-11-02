@@ -113,6 +113,7 @@
 
 .text-pre-wrap {
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .break-word {
   overflow-wrap: break-word;

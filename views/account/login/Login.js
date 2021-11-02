@@ -70,6 +70,16 @@ class Login extends Component {
             const authUser = res.user;
             Helper.storeUser(authUser);
             this.props.dispatch(saveUser(authUser));
+            // open start kyc here
+            // if (
+            //   authUser &&
+            //   !authUser.is_super_admin &&
+            //   !authUser.is_admin &&
+            //   authUser.check_send_kyc === 1 &&
+            //   !authUser.shuftipro_temp
+            // ) {
+            //   this.props.dispatch(setActiveModal("start-kyc"));
+            // }
           }
         }
       )

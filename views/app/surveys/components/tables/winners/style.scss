@@ -5,6 +5,7 @@
   .infinite-body {
     padding-left: 80px;
     padding-right: 30px;
+    padding-bottom: 100px;
   }
   #infinite-no-result {
     width: 100%;
@@ -14,23 +15,27 @@
     justify-content: center;
   }
   .c-col-1 {
-    flex: 0 0 15%;
-    width: 15%;
+    flex: 0 0 10%;
+    width: 10%;
   }
   .c-col-2 {
     flex: 0 0 10%;
     width: 10%;
   }
   .c-col-3 {
+    flex: 0 0 10%;
+    width: 10%;
+  }
+  .c-col-4 {
     flex: 0 0 15%;
     width: 15%;
   }
-  .c-col-4 {
+  .c-col-5 {
     flex: 0 0 35%;
     width: 35%;
   }
-  .c-col-5 {
-    flex: 0 0 25%;
-    width: 25%;
+  .c-col-6 {
+    flex: 0 0 15%;
+    width: 15%;
   } 
 }

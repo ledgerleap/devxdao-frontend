@@ -7,6 +7,7 @@ import { getAllPublicProposalsShared } from "../../../../../utils/Thunk";
 import "./public-proposal-table.scss";
 import { withRouter } from "react-router-dom";
 import * as Icon from "react-feather";
+import { PROPOSAL_TYPES } from "../../../../../utils/enum";
 
 const mapStateToProps = () => {
   return {};
@@ -311,8 +312,8 @@ class PublicProposalTable extends Component {
               <label className="font-size-14 d-block">{item.telegram}</label>
             </div>
             <div className="c-col-4 c-cols">
-              <label className="font-size-14">
-                {item.type == "grant" ? "Grant" : "Simple"}
+              <label className="font-size-14 text-capitalize">
+                {PROPOSAL_TYPES[item.type]}
               </label>
             </div>
             <div className="c-col-5 c-cols">{this.renderStatus(item)}</div>

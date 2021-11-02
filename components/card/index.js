@@ -50,7 +50,7 @@ export const Card = ({ extraAction, isAutoExpand, children, className }) => {
 Card.Header = ({ children }) => {
   const { setIsExpand, isExpand } = useContext(CardContext);
   return (
-    <div className="d-flex justify-content-between app-simple-section__title">
+    <div className="px-0 d-flex flex-row justify-content-between app-simple-section__title">
       <div className="flex-fill">{children}</div>
       <div style={{ cursor: "pointer" }} onClick={() => setIsExpand(!isExpand)}>
         {!isExpand && (

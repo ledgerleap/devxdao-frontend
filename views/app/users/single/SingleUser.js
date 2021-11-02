@@ -21,6 +21,7 @@ import {
   getReputationByUser,
   downloadCSVUserRep,
   exportProposalMentor,
+  sendKycKangarooByAdmin,
 } from "../../../../utils/Thunk";
 import ProposalsView from "./proposals/Proposals";
 import VotesView from "./votes/Votes";
@@ -302,6 +303,26 @@ class SingleUser extends Component {
     );
   };
 
+  sendKYC = (item) => {
+    this.props.dispatch(
+      sendKycKangarooByAdmin(
+        { user_id: item?.id },
+        () => {
+          this.props.dispatch(showCanvas());
+        },
+        (res) => {
+          this.props.dispatch(hideCanvas());
+          if (res.success) {
+            this.props.dispatch(
+              setActiveModal("confirm-kyc-link", { email: item?.email })
+            );
+          }
+          this.getUser();
+        }
+      )
+    );
+  };
+
   clickDeny = (e) => {
     e.preventDefault();
     if (!confirm("Are you sure you are going to deny this KYC?")) return;
@@ -462,103 +483,157 @@ class SingleUser extends Component {
       );
     if (user.shuftipro && user.shuftipro.manual_reviewer)
       approver = user.shuftipro.manual_reviewer;
-
-    return (
-      <section>
-        <div className="app-sup-section">
-          <div className="app-sup-row">
-            <label>Date of Birth</label>
-            <span>{user.profile.dob}</span>
-          </div>
-          <div className="app-sup-row">
-            <label>Country of Citizenship</label>
-            <span>{user.profile.country_citizenship}</span>
-          </div>
-          <div className="app-sup-row">
-            <label>Country of Residence</label>
-            <span>{user.profile.country_residence}</span>
-          </div>
-          <div className="app-sup-row">
-            <label>Address</label>
-            <div>
-              <span>{user.profile.address}</span>
-              {authUser.is_admin && (
-                <button
-                  className="ml-4 btn btn-primary extra-small"
-                  onClick={(e) =>
-                    this.clickChangeUserAML(e, "address", user.profile.address)
-                  }
-                >
-                  Edit
-                </button>
-              )}
+    const new_kyc = user.shuftipro_temp?.invite_id;
+    let data;
+    if (user.shuftipro?.data) data = JSON.parse(user.shuftipro?.data);
+    if (!new_kyc) {
+      return (
+        <section>
+          <div className="app-sup-section">
+            <div className="app-sup-row">
+              <label>Date of Birth</label>
+              <span>{user.profile.dob}</span>
             </div>
-          </div>
-          <div className="app-sup-row">
-            <label>City</label>
-            <div>
-              <span>{user.profile.city}</span>
-              {authUser.is_admin && (
-                <button
-                  className="ml-4 btn btn-primary extra-small"
-                  onClick={(e) =>
-                    this.clickChangeUserAML(e, "city", user.profile.city)
-                  }
-                >
-                  Edit
-                </button>
-              )}
+            <div className="app-sup-row">
+              <label>Country of Citizenship</label>
+              <span>{user.profile.country_citizenship}</span>
             </div>
-          </div>
-          <div className="app-sup-row">
-            <label>Postal / Zip Code</label>
-            <div>
-              <span>{user.profile.zip}</span>
-              {authUser.is_admin && (
-                <button
-                  className="ml-4 btn btn-primary extra-small"
-                  onClick={(e) =>
-                    this.clickChangeUserAML(e, "zip", user.profile.zip)
-                  }
-                >
-                  Edit
-                </button>
-              )}
+            <div className="app-sup-row">
+              <label>Country of Residence</label>
+              <span>{user.profile.country_residence}</span>
             </div>
-          </div>
-          <div className="app-sup-row">
-            <label>Overall Status</label>
-            <span>{this.renderShuftiproStatus()}</span>
-          </div>
-          <div className="app-sup-row">
-            <label>Shufti Ref #</label>
-            <span>{user.shuftipro?.reference_id}</span>
-            {authUser.is_admin && (
-              <button
-                className="ml-4 btn btn-primary extra-small"
-                onClick={(e) =>
-                  this.clickChangeShuftiRef(e, "zip", user.profile.zip)
-                }
-              >
-                Add/Update
-              </button>
+            <div className="app-sup-row">
+              <label>Address</label>
+              <div>
+                <span>{user.profile.address}</span>
+                {authUser.is_admin && (
+                  <button
+                    className="ml-4 btn btn-primary extra-small"
+                    onClick={(e) =>
+                      this.clickChangeUserAML(
+                        e,
+                        "address",
+                        user.profile.address
+                      )
+                    }
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="app-sup-row">
+              <label>City</label>
+              <div>
+                <span>{user.profile.city}</span>
+                {authUser.is_admin && (
+                  <button
+                    className="ml-4 btn btn-primary extra-small"
+                    onClick={(e) =>
+                      this.clickChangeUserAML(e, "city", user.profile.city)
+                    }
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="app-sup-row">
+              <label>Postal / Zip Code</label>
+              <div>
+                <span>{user.profile.zip}</span>
+                {authUser.is_admin && (
+                  <button
+                    className="ml-4 btn btn-primary extra-small"
+                    onClick={(e) =>
+                      this.clickChangeUserAML(e, "zip", user.profile.zip)
+                    }
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="app-sup-row">
+              <label>Overall Status</label>
+              <span>{this.renderShuftiproStatus()}</span>
+              {(!user.shuftipro_temp ||
+                user.shuftipro_temp?.status === "pending") &&
+                !!authUser.is_admin && (
+                  <button
+                    className="ml-4 btn btn-primary extra-small"
+                    onClick={() => this.sendKYC(user)}
+                  >
+                    Update
+                  </button>
+                )}
+            </div>
+            {user.shuftipro && (
+              <div className="app-sup-row">
+                <label>Shufti Ref #</label>
+                <span>{user.shuftipro?.reference_id}</span>
+                {authUser.is_admin && (
+                  <button
+                    className="ml-4 btn btn-primary extra-small"
+                    onClick={(e) =>
+                      this.clickChangeShuftiRef(e, "zip", user.profile.zip)
+                    }
+                  >
+                    Add/Update
+                  </button>
+                )}
+              </div>
             )}
+            {approvedAt ? (
+              <div className="app-sup-row">
+                <label>Manually Approved At</label>
+                <span>{approvedAt}</span>
+              </div>
+            ) : null}
+            {approver ? (
+              <div className="app-sup-row">
+                <label>Manually Approved By</label>
+                <span>{approver}</span>
+              </div>
+            ) : null}
           </div>
-          {approvedAt ? (
+        </section>
+      );
+    } else {
+      return (
+        <section>
+          <div className="app-sup-section">
             <div className="app-sup-row">
-              <label>Manually Approved At</label>
-              <span>{approvedAt}</span>
+              <label>KycKangaroo status</label>
+              <span className="text-capitalize">{user?.shuftipro?.status}</span>
             </div>
-          ) : null}
-          {approver ? (
             <div className="app-sup-row">
-              <label>Manually Approved By</label>
-              <span>{approver}</span>
+              <label>Invite ID</label>
+              <span>{user?.shuftipro_temp?.invite_id}</span>
             </div>
-          ) : null}
-        </div>
-      </section>
-    );
+            <div className="app-sup-row">
+              <label>Shufti REFID</label>
+              <span>{user?.shuftipro?.reference_id}</span>
+            </div>
+            <div className="app-sup-row">
+              <label>Name Verified in KYC kangaroo</label>
+              <span>
+                {data?.address_document?.name?.first_name}{" "}
+                {data?.address_document?.name?.last_name}
+              </span>
+            </div>
+            <div className="app-sup-row">
+              <label>Address Verified in KYC kangaroo</label>
+              <span>{data?.address_document?.full_address}</span>
+            </div>
+            <div className="app-sup-row">
+              <label>Country Verified in KYC kangaroo</label>
+              <span>{data?.address_document?.country}</span>
+            </div>
+          </div>
+        </section>
+      );
+    }
   }
 
   renderHellosignForm() {
@@ -609,7 +684,7 @@ class SingleUser extends Component {
                     : "Guest"}
                 </span>
               </div>
-              {user.is_member && (
+              {!!user.is_member && (
                 <div className="app-sup-row">
                   <label>V%</label>
                   <span>

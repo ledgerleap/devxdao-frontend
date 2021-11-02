@@ -311,6 +311,10 @@ class SingleChangeDetail extends Component {
         return "Milestone";
       case "citation":
         return "Citation";
+      case "total_grant_update":
+        return "Euro amount requested";
+      case "things_delivered_update":
+        return "What is being delivered for the DxD/ETA?";
     }
   }
 

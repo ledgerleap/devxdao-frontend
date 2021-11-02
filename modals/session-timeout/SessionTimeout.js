@@ -25,9 +25,6 @@ class SessionTimeout extends Component {
   componentDidMount() {
     const intervalIdTemp = setInterval(() => {
       this.setState({ timer: this.state.timer - 1 });
-      if (this.state.timer === 0) {
-        this.logout();
-      }
     }, 1000);
     this.setState({ intervalId: intervalIdTemp });
   }

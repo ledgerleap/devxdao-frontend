@@ -66,6 +66,7 @@ class GlobalSettings extends Component {
       // coo_email: "",
       cfo_email: "",
       board_member_email: "",
+      compliance_admin: "",
       // president_email: "",
       need_to_approve: "",
     };
@@ -129,6 +130,7 @@ class GlobalSettings extends Component {
       // coo_email: settings.coo_email || "",
       cfo_email: settings.cfo_email || "",
       board_member_email: settings.board_member_email || "",
+      compliance_admin: settings.compliance_admin || "",
       // president_email: settings.president_email || "",
       need_to_approve: settings.need_to_approve || "",
     });
@@ -243,6 +245,7 @@ class GlobalSettings extends Component {
       // coo_email,
       cfo_email,
       board_member_email,
+      compliance_admin,
       // president_email,
       need_to_approve,
     } = this.state;
@@ -259,6 +262,13 @@ class GlobalSettings extends Component {
 
     if (!board_member_email || !Helper.validateEmail(board_member_email)) {
       this.props.dispatch(showAlert("Please input valid Board Member Email"));
+      return;
+    }
+
+    if (!compliance_admin || !Helper.validateEmail(compliance_admin)) {
+      this.props.dispatch(
+        showAlert("Please input valid Compliance Admin Email")
+      );
       return;
     }
 
@@ -457,6 +467,7 @@ class GlobalSettings extends Component {
       // coo_email,
       cfo_email,
       board_member_email,
+      compliance_admin,
       // president_email,
       time_before_op_do,
       time_unit_before_op_do,
@@ -533,6 +544,7 @@ class GlobalSettings extends Component {
       // coo_email,
       cfo_email,
       board_member_email,
+      compliance_admin,
       // president_email,
       time_before_op_do,
       time_unit_before_op_do,
@@ -614,6 +626,18 @@ class GlobalSettings extends Component {
                 type="email"
                 value={board_member_email}
                 onChange={(e) => this.inputField(e, "board_member_email")}
+                disabled={!editing}
+                style={{ width: "250px" }}
+              />
+            </div>
+          </div>
+          <div className="c-form-row">
+            <label>Compliance Admin</label>
+            <div>
+              <input
+                type="email"
+                value={compliance_admin}
+                onChange={(e) => this.inputField(e, "compliance_admin")}
                 disabled={!editing}
                 style={{ width: "250px" }}
               />

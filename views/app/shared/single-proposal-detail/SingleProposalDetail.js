@@ -8,6 +8,7 @@ import Dropzone from "react-dropzone";
 import ProposalTeamView from "../../shared/proposal-team/ProposalTeam";
 import ProposalMilestoneView from "../../shared/proposal-milestone/ProposalMilestone";
 import ProposalCitationView from "../../shared/proposal-citation/ProposalCitation";
+import { format } from "date-fns";
 import {
   BRAND,
   COUNTRYLIST,
@@ -47,13 +48,16 @@ const proposalParams = (proposal) => {
   return {
     id: proposal.id,
     title: proposal.title.trim(),
+    things_delivered: proposal.things_delivered?.trim(),
+    delivered_at: proposal.delivered_at,
     short_description: proposal.short_description.trim(),
     explanation_benefit: proposal.explanation_benefit.trim(),
     explanation_goal: proposal.explanation_goal.trim(),
     license: proposal.license,
     license_other: (proposal.license_other || "").trim(),
     total_grant: parseFloat(Helper.unformatNumber(proposal.total_grant)),
-    memberRequired: !!proposal.memberRequired,
+    memberRequired: !!proposal.member_required,
+    member_required: !!proposal.member_required,
     members: proposal.members,
     grants: proposal.grants,
     bank_name: proposal.bank?.bank_name || "",
@@ -404,7 +408,9 @@ class SingleProposalDetail extends Component {
           additionalNotes = proposal[editionField];
         }
       }
+      console.log(1, proposalTemp);
       const params = proposalParams(proposalTemp);
+      console.log(2, params);
       this.props.dispatch(
         updateProposalShared(
           { id: proposal.id, type: proposal.type },
@@ -622,7 +628,6 @@ class SingleProposalDetail extends Component {
   }
 
   checkMentorEntity(entityValue) {
-    console.log(entityValue);
     if (entityValue.have_mentor) {
       if (
         !entityValue.name_mentor ||
@@ -709,7 +714,6 @@ class SingleProposalDetail extends Component {
     } else if (this.state.editionField === "have_mentor") {
       val = e;
       canSave = this.checkMentorEntity(e);
-      console.log(123123, canSave);
     } else {
       val = e.target.value;
       if (!val) {
@@ -1100,7 +1104,8 @@ class SingleProposalDetail extends Component {
 
   renderCoreInfo() {
     const { proposal } = this.state;
-    const surveyWon = proposal?.survey_ranks?.filter((x) => x.is_winner)[0];
+    const surveyWon = proposal?.winner;
+    const surveyLose = proposal?.loser;
 
     return (
       <ul>
@@ -1132,11 +1137,13 @@ class SingleProposalDetail extends Component {
         </li>
         <li>
           <label>OP:</label>
-          <span>
-            {proposal.user && proposal.user.profile
-              ? proposal.user.profile.forum_name
-              : ""}
-          </span>
+          <Link to={`/app/user/${proposal?.user?.id}`}>
+            <span>
+              {proposal.user && proposal.user.profile
+                ? proposal.user.profile.forum_name
+                : ""}
+            </span>
+          </Link>
         </li>
         {proposal.sponsor && proposal.sponsor.id ? (
           <li>
@@ -1152,18 +1159,38 @@ class SingleProposalDetail extends Component {
           <label>Proposal Status:</label>
           <span>{this.renderStatus()}</span>
         </li>
-        <li>
-          <label>Survey won:</label>
-          <span>{surveyWon ? `S${surveyWon?.survey_id}` : "-"}</span>
-        </li>
-        <li>
-          <label>Survey rank:</label>
-          <span>
-            {surveyWon
-              ? `${surveyWon?.rank}/${surveyWon?.survey?.number_response}`
-              : "-"}
-          </span>
-        </li>
+        {surveyWon && (
+          <>
+            <li>
+              <label>Survey won:</label>
+              <span>{surveyWon ? `S${surveyWon?.survey_id}` : "-"}</span>
+            </li>
+            <li>
+              <label>Survey rank:</label>
+              <span>
+                {surveyWon
+                  ? `${surveyWon?.rank}/${surveyWon?.survey?.number_response}`
+                  : "-"}
+              </span>
+            </li>
+          </>
+        )}
+        {surveyLose && (
+          <>
+            <li>
+              <label>Survey Lost:</label>
+              <span>{surveyLose ? `S${surveyLose?.survey_id}` : "-"}</span>
+            </li>
+            <li>
+              <label>Downvote rank:</label>
+              <span>
+                {surveyLose
+                  ? `${surveyLose?.rank}/${surveyLose?.survey?.number_response}`
+                  : "-"}
+              </span>
+            </li>
+          </>
+        )}
       </ul>
     );
   }
@@ -1253,7 +1280,7 @@ class SingleProposalDetail extends Component {
               </p>
             ) : null} */}
           </div>
-          {+license == 5 && (
+          {+editionValue.license == 5 && (
             <div className="col-md-4">
               <input
                 value={editionValue.license_other || ""}
@@ -1414,14 +1441,47 @@ class SingleProposalDetail extends Component {
                     Title of proposed Project (limit 10 words)
                   </label>
                   <p>{proposal.title}</p>
-                  <label className="font-weight-700 d-block">
-                    Describe your project in detail. Please include what it does
-                    and what problem it solves
-                  </label>
-                  <p className="text-pre-wrap">
-                    {proposal.short_description}
-                    {this.checkProposalChange("short_description")}
-                  </p>
+                  {["grant", "simple"].includes(proposal.type) && (
+                    <>
+                      <label className="font-weight-700 d-block">
+                        {`Describe your project in detail. Please include what it does
+                        and what problem it solves`}
+                      </label>
+                      <p className="text-pre-wrap">
+                        {proposal.short_description}
+                        {this.checkProposalChange("short_description")}
+                      </p>
+                    </>
+                  )}
+                  {["admin-grant"].includes(proposal.type) && (
+                    <>
+                      <label className="font-weight-700 d-block">
+                        {`Euro amount requested`}
+                      </label>
+                      <p className="text-pre-wrap">
+                        {Helper.formatPriceNumber(
+                          proposal.total_grant || "",
+                          "€"
+                        )}
+                      </p>
+                      <label className="font-weight-700 d-block">
+                        {`Enter what is being delivered for the DxD/ETA`}
+                      </label>
+                      <p className="text-pre-wrap">
+                        {proposal.things_delivered}
+                      </p>
+                      <label className="font-weight-700 d-block">
+                        {`When will this be delivered`}
+                      </label>
+                      <p className="text-pre-wrap">
+                        {format(new Date(proposal.delivered_at), "dd/MM/yyyy")}
+                      </p>
+                      <label className="font-weight-700 d-block">
+                        {`Other notes`}
+                      </label>
+                      <p className="text-pre-wrap">{proposal.extra_notes}</p>
+                    </>
+                  )}
                   {proposal.type == "grant" ? (
                     <Fragment>
                       <label className="font-weight-700 d-block">
@@ -1484,48 +1544,146 @@ class SingleProposalDetail extends Component {
                 )}
                 {!!expanded && (
                   <div className="app-simple-section__body">
-                    <>
-                      {this.renderLabelEdition(
-                        "Title of proposed Project (limit 10 words)",
-                        "title",
-                        proposal.title
-                      )}
-                      {this.state.editionField !== "title" && (
-                        <p>{proposal.title}</p>
-                      )}
-                      {this.state.editionField === "title" && (
-                        <div className="c-form-row">
-                          <input
-                            value={this.state.editionValue}
-                            onChange={(e) => this.inputField(e)}
-                            type="text"
-                            required
-                          />
-                        </div>
-                      )}
-                    </>
-                    <>
-                      {this.renderLabelEdition(
-                        "Describe your project in detail. Please include what it does and what problem it solves",
-                        "short_description",
-                        proposal.short_description
-                      )}
-                      {this.state.editionField !== "short_description" && (
-                        <p className="text-pre-wrap">
-                          {proposal.short_description}
-                          {this.checkProposalChange("short_description")}
-                        </p>
-                      )}
-                      {this.state.editionField === "short_description" && (
-                        <div className="c-form-row">
-                          <textarea
-                            value={this.state.editionValue}
-                            onChange={(e) => this.inputField(e)}
-                            required
-                          ></textarea>
-                        </div>
-                      )}
-                    </>
+                    {["admin-grant"].includes(proposal.type) && (
+                      <>
+                        <>
+                          <label className="font-weight-700 d-block">
+                            Title of proposed Project (limit 10 words)
+                          </label>
+                          <p className="text-pre-wrap">{proposal.title}</p>
+                        </>
+                        <>
+                          {this.renderLabelEdition(
+                            "Euro amount requested",
+                            "total_grant",
+                            proposal.total_grant
+                          )}
+                          {this.state.editionField !== "total_grant" && (
+                            <p className="text-pre-wrap">
+                              {proposal.total_grant}
+                              {this.checkProposalChange("total_grant")}
+                            </p>
+                          )}
+                          {this.state.editionField === "total_grant" && (
+                            <div className="c-form-row">
+                              <input
+                                value={this.state.editionValue}
+                                onChange={(e) => this.inputField(e)}
+                                type="number"
+                                required
+                              />
+                            </div>
+                          )}
+                        </>
+                        <>
+                          {this.renderLabelEdition(
+                            "Enter what is being delivered for the DxD/ETA",
+                            "things_delivered",
+                            proposal.things_delivered
+                          )}
+                          {this.state.editionField !== "things_delivered" && (
+                            <p className="text-pre-wrap">
+                              {proposal.things_delivered}
+                              {this.checkProposalChange("things_delivered")}
+                            </p>
+                          )}
+                          {this.state.editionField === "things_delivered" && (
+                            <div className="c-form-row">
+                              <textarea
+                                value={this.state.editionValue}
+                                onChange={(e) => this.inputField(e)}
+                                required
+                              ></textarea>
+                            </div>
+                          )}
+                        </>
+                        <>
+                          <label className="font-weight-700 d-block">
+                            {`When will this be delivered`}
+                          </label>
+                          <p className="text-pre-wrap">
+                            {format(
+                              new Date(proposal.delivered_at),
+                              "dd/MM/yyyy"
+                            )}
+                          </p>
+                        </>
+                        <>
+                          {this.renderLabelEdition(
+                            "Other notes",
+                            "extra_notes",
+                            proposal.extra_notes
+                          )}
+                          {this.state.editionField !== "extra_notes" && (
+                            <p className="text-pre-wrap">
+                              {proposal.extra_notes}
+                              {this.checkProposalChange("extra_notes")}
+                            </p>
+                          )}
+                          {this.state.editionField === "extra_notes" && (
+                            <div className="c-form-row">
+                              <textarea
+                                value={this.state.editionValue}
+                                onChange={(e) => this.inputField(e)}
+                                required
+                              ></textarea>
+                            </div>
+                          )}
+                        </>
+                        <>
+                          <label className="font-weight-700 d-block">
+                            Uploaded Files
+                          </label>
+                          <ul id="app-spd-fileList" className="mt-3 mb-4">
+                            {this.renderFiles()}
+                          </ul>
+                        </>
+                      </>
+                    )}
+                    {["grant", "simple"].includes(proposal.type) && (
+                      <>
+                        <>
+                          {this.renderLabelEdition(
+                            "Title of proposed Project (limit 10 words)",
+                            "title",
+                            proposal.title
+                          )}
+                          {this.state.editionField !== "title" && (
+                            <p>{proposal.title}</p>
+                          )}
+                          {this.state.editionField === "title" && (
+                            <div className="c-form-row">
+                              <input
+                                value={this.state.editionValue}
+                                onChange={(e) => this.inputField(e)}
+                                type="text"
+                                required
+                              />
+                            </div>
+                          )}
+                        </>
+                        {this.renderLabelEdition(
+                          "Describe your project in detail. Please include what it does and what problem it solves",
+                          "short_description",
+                          proposal.short_description
+                        )}
+                        {this.state.editionField !== "short_description" && (
+                          <p className="text-pre-wrap">
+                            {proposal.short_description}
+                            {this.checkProposalChange("short_description")}
+                          </p>
+                        )}
+                        {this.state.editionField === "short_description" && (
+                          <div className="c-form-row">
+                            <textarea
+                              value={this.state.editionValue}
+                              onChange={(e) => this.inputField(e)}
+                              required
+                            ></textarea>
+                          </div>
+                        )}
+                      </>
+                    )}
                     {proposal.type === "grant" && (
                       <>
                         <>
@@ -1576,7 +1734,7 @@ class SingleProposalDetail extends Component {
                             "license",
                             {
                               license: proposal.license,
-                              license_other: proposal.license,
+                              license_other: proposal.license_other,
                             }
                           )}
                           {this.state.editionField !== "license" && (

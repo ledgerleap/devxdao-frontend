@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { Fade } from "react-reveal";
 import { GlobalRelativeCanvasComponent } from "../../../../components";
+import Tooltip from "@material-ui/core/Tooltip";
 import { getOnboardings } from "../../../../utils/Thunk";
 import {
   setActiveModal,
@@ -12,6 +13,7 @@ import {
 } from "../../../../redux/actions";
 
 import "./proposal-tracking.scss";
+import * as Icon from "react-feather";
 
 const moment = require("moment");
 
@@ -292,6 +294,12 @@ class ProposalTracking extends Component {
     return <label className="font-size-14 color-primary">Submitted</label>;
   }
 
+  renderComplianceCheck = (item) => {
+    return (
+      <p className="font-size-14 text-capitalize">{item.compliance_status}</p>
+    );
+  };
+
   // Render Hellosign
   renderHellosign(item) {
     const proposal = item.proposal || {};
@@ -307,14 +315,55 @@ class ProposalTracking extends Component {
     return <label className={`font-size-14 color-${type}`}>{text}</label>;
   }
 
+  // Click Start
+  resend = () => {
+    this.props.dispatch(setActiveModal("resend-kyc"));
+  };
+
   renderStatus(item) {
     const { dos_paid } = item;
     if (item.status == "payment") {
       if (dos_paid) return this.renderStatusLabel("Payment Clearing", "info");
       else return this.renderStatusLabel("Payment Waiting", "info");
-    } else if (item.status == "pending")
-      return this.renderStatusLabel("Pending", "primary");
-    else if (item.status == "denied")
+    } else if (item.status == "pending") {
+      if (item.user.shuftipro?.status === "pending") {
+        return (
+          <div>
+            <p>{this.renderStatusLabel("Pending", "primary")}</p>
+            <a
+              className="text-underline font-size-14 color-primary"
+              onClick={this.resend}
+            >
+              resend my link
+            </a>
+          </div>
+        );
+      } else if (item.user.shuftipro?.status === "denied") {
+        return (
+          <div>
+            <p>{this.renderStatusLabel("Denied", "primary")}</p>
+          </div>
+        );
+      } else if (item.user.shuftipro?.status === "approved") {
+        return (
+          <div>
+            <p>{this.renderStatusLabel("Approved", "primary")}</p>
+          </div>
+        );
+      } else {
+        return (
+          <div>
+            <p>{this.renderStatusLabel("Not submitted", "primary")}</p>
+            <a
+              className="text-underline font-size-14 color-primary"
+              onClick={this.resend}
+            >
+              resend my link
+            </a>
+          </div>
+        );
+      }
+    } else if (item.status == "denied")
       return this.renderStatusLabel("Denied", "danger");
     else if (item.status == "completed")
       return this.renderStatusLabel("Completed", "");
@@ -442,7 +491,9 @@ class ProposalTracking extends Component {
               </label>
             </div>
             <div className="c-col-4 c-cols">{this.renderStatus(item)}</div>
-            <div className="c-col-5 c-cols">{this.renderKYCColumn()}</div>
+            <div className="c-col-5 c-cols">
+              {this.renderComplianceCheck(item)}
+            </div>
 
             {/* <div className="c-col-4 c-cols">{this.renderFormColumn(item)}</div>
             <div className="c-col-5 c-cols">{this.renderHellosign(item)}</div> */}
@@ -499,10 +550,18 @@ class ProposalTracking extends Component {
             <label className="font-size-14">Type</label>
           </div>
           <div className="c-col-4 c-cols">
-            <label className="font-size-14">Status</label>
+            <label className="font-size-14">KYC</label>
           </div>
           <div className="c-col-5 c-cols">
-            <label className="font-size-14">KYC</label>
+            <label>
+              <span className="mx-0 font-size-14 pr-2">Compliance checks</span>
+              <Tooltip
+                title="All grants in the portal must be reviewed for compliance. This process typically takes anywhere from one to seven days."
+                placement="right-end"
+              >
+                <Icon.HelpCircle size="12" />
+              </Tooltip>
+            </label>
           </div>
           {/* <div className="c-col-4 c-cols">
             <label className="font-size-14">Payments Form</label>

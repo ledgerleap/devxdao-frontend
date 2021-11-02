@@ -6,7 +6,18 @@
   position: relative;
   padding: 90px 50px;
   margin: 160px auto;
-
+  .multiple-selected-top {
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .multiple-selected-bottom {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
   h2 {
     margin-bottom: 3rem;
   }

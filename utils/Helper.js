@@ -66,8 +66,8 @@ class Helper {
   }
 
   // Unformat Telegram
-  static unformatTelegram(string) {
-    return string.toString().replaceAll("@", "");
+  static unformatTelegram(str) {
+    return `${str}`.replaceAll("@", "");
   }
 
   // Format Telegram
@@ -93,8 +93,8 @@ class Helper {
   }
 
   // Unformat Percentage
-  static unformatPercentage(string) {
-    return string.toString().replaceAll("%", "");
+  static unformatPercentage(str) {
+    return str ? `${str}`.replaceAll("%", "") : "";
   }
 
   // Format Percentage
@@ -106,7 +106,7 @@ class Helper {
 
   // Unformat Float String
   static unformatNumber(str) {
-    return str?.toString().replaceAll(",", "");
+    return str ? `${str}`.replaceAll(",", "") : "";
   }
 
   // Format Price String
@@ -124,16 +124,17 @@ class Helper {
   }
 
   // Format Float String
-  static formatNumber(string) {
-    string = string.toString().replaceAll(",", "");
-    if (isNaN(string) || string.trim() == "") return "";
-    const temp = string.split(".");
+  static formatNumber(str) {
+    str = `${str}`.replaceAll(",", "");
+
+    if (isNaN(str) || str.trim() == "") return "";
+    const temp = str.split(".");
     if (temp.length > 1) {
       return (
         new Intl.NumberFormat("en-US").format(parseInt(temp[0])) + "." + temp[1]
       );
     } else {
-      return new Intl.NumberFormat("en-US").format(parseInt(string));
+      return new Intl.NumberFormat("en-US").format(parseInt(str));
     }
   }
 
@@ -150,7 +151,7 @@ class Helper {
   // Get Excerpt
   static getExcerpt(text) {
     const length = 150;
-    if (text.length > length) return text.substring(0, length) + "...";
+    if (text?.length > length) return text.substring(0, length) + "...";
     else return text;
   }
 

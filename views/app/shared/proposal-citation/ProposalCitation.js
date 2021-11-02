@@ -99,7 +99,7 @@ class ProposalCitation extends Component {
             <p className="text-success font-size-14">
               This proposal is valid. Prior work title is{" "}
               <b>{citation.proposal?.title}</b>. OP is{" "}
-              <b>{citation.proposal?.user.profile.forum_name}</b>.
+              <b>{citation.proposal?.user?.profile?.forum_name}</b>.
             </p>
           </div>
         );

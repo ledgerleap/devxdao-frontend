@@ -34,7 +34,6 @@ class ShuftiRefChange extends Component {
 
   updateShufti = () => {
     const { user } = this.props.data;
-    console.log(user);
     this.props.dispatch(
       updateShufti(
         { userId: user.id, ref: this.state.shuftiRef },

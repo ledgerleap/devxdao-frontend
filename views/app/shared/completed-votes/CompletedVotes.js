@@ -14,6 +14,7 @@ import {
 
 import "./completed-votes.scss";
 import Helper from "../../../../utils/Helper";
+import { BALLOT_TYPES } from "../../../../utils/enum";
 
 // eslint-disable-next-line no-undef
 const moment = require("moment");
@@ -484,12 +485,8 @@ class CompletedVotes extends Component {
                 className="c-col-3 c-cols"
                 onClick={() => this.clickRow(vote)}
               >
-                <label className="font-size-14 d-block">
-                  {vote.content_type == "grant"
-                    ? "Grant"
-                    : vote.content_type == "simple"
-                    ? "Simple"
-                    : "Milestone"}
+                <label className="font-size-14 d-block text-capitalize">
+                  {BALLOT_TYPES[vote.content_type]}
                 </label>
               </div>
               <div

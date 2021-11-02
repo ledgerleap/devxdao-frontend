@@ -440,6 +440,11 @@ class API {
     return sendRequest("/user/simple-proposal", params, "POST", true);
   }
 
+  // Submit Simple Proposal - Voting Associate
+  static submitAdminGrantProposal(params = {}) {
+    return sendRequest("/user/admin-grant-proposal", params, "POST", true);
+  }
+
   // Submit Proposal Change
   static submitProposalChange(params = {}) {
     return sendRequest("/user/proposal-change", params, "POST", true);
@@ -713,6 +718,16 @@ class API {
   // Get Active Proposals - User
   static getActiveProposals(params = {}) {
     return sendRequest("/user/active-proposals", params, "GET", true);
+  }
+
+  // Get Active Proposals - User
+  static getNotSubmitMilestones(proposalId) {
+    return sendRequest(
+      `/user/proposal/${proposalId}/milestone-not-submit`,
+      {},
+      "GET",
+      true
+    );
   }
 
   // Get Emailer Data - Admin
@@ -1033,9 +1048,29 @@ class API {
     return sendRequest(`/admin/survey/win`, params, "GET", true);
   }
 
+  // getActiveSurveys - Admin
+  static approveDownVote(params = {}) {
+    return sendRequest(`/admin/survey/approve-downvote`, params, "POST", true);
+  }
+
+  // getActiveSurveys - Admin
+  static getLosers(params = {}) {
+    return sendRequest(`/admin/survey/downvote`, params, "GET", true);
+  }
+
   // getSurveyVotes - Admin
   static getSurveyVotes(id, params) {
     return sendRequest(`/admin/survey/${id}/discussions`, params, "GET", true);
+  }
+
+  // getSurveyDownvotes - Admin
+  static getSurveyDownvotes(id, params) {
+    return sendRequest(
+      `/admin/survey/${id}/downvote/discussions`,
+      params,
+      "GET",
+      true
+    );
   }
 
   // getSurveyEmailVoter - Admin
@@ -1201,6 +1236,26 @@ class API {
     return sendRequest(`/user/reputation-daily-csv`, params, "POST", true);
   }
 
+  // send KYC
+  static sendKycKangaroo(params = {}) {
+    return sendRequest(`/user/send-kyc-kangaroo`, params, "POST", true);
+  }
+
+  // send KYC
+  static dismissStartKyc(params = {}) {
+    return sendRequest(`/user/check-send-kyc`, params, "POST", true);
+  }
+
+  // resend KYC - User
+  static resendKycKangaroo(params = {}) {
+    return sendRequest(`/shared/resend-kyc-kangaroo`, params, "POST", true);
+  }
+
+  // resend KYC - User
+  static sendKycKangarooByAdmin(params = {}) {
+    return sendRequest(`/admin/send-kyc-kangaroo`, params, "POST", true);
+  }
+
   // Rep - User
   static getTimelineProposal(proposalId, params = {}) {
     return sendRequest(
@@ -1209,6 +1264,21 @@ class API {
       "GET",
       true
     );
+  }
+
+  // Rep - User
+  static resendComplianceReview(params = {}) {
+    return sendRequest(`/admin/resend-compliance-review`, params, "POST", true);
+  }
+
+  // Rep - User
+  static approveComplianceReview(params = {}) {
+    return sendRequest(`/compliance-review/approve`, params, "POST", true);
+  }
+
+  // Rep - User
+  static denyComplianceReview(params = {}) {
+    return sendRequest(`/compliance-review/deny`, params, "POST", true);
   }
 
   // Rep - Admin
@@ -1234,9 +1304,42 @@ class API {
   }
 
   // Accounting - Admin
+  static downloadVoteResult(proposalId, voteId, params = {}) {
+    return sendRequest(
+      `/shared/proposal/${proposalId}/vote/${voteId}/vote-result/export-csv`,
+      params,
+      "GET",
+      true,
+      "blob"
+    );
+  }
+
+  // Accounting - Admin
+  static downloadSurveyLoser(params = {}) {
+    return sendRequest(
+      `/admin/survey-downvote/export-csv`,
+      params,
+      "GET",
+      true,
+      "blob"
+    );
+  }
+
+  // Accounting - Admin
   static downloadCurrentVoteByProposal(id, params = {}) {
     return sendRequest(
       `/survey-vote/${id}/export-csv`,
+      params,
+      "GET",
+      true,
+      "blob"
+    );
+  }
+
+  // Accounting - Admin
+  static downloadCurrentDownvoteByProposal(id, params = {}) {
+    return sendRequest(
+      `/survey-downvote/${id}/export-csv`,
       params,
       "GET",
       true,
@@ -1439,6 +1542,21 @@ class API {
   // submitSurvey - User
   static submitSurvey(id, body) {
     return sendRequest(`/user/survey/${id}`, body, "POST", true);
+  }
+
+  // submitSurvey - User
+  static submitDownvoteSurvey(id, body) {
+    return sendRequest(`/user/survey/down-vote/${id}`, body, "POST", true);
+  }
+
+  // Update Proposal - Shared
+  static updateAdminGrantProposalShared(proposalId, params = {}) {
+    return sendRequest(
+      `/shared/admin-grant-proposal/${proposalId}`,
+      params,
+      "PUT",
+      true
+    );
   }
 
   // Upload File

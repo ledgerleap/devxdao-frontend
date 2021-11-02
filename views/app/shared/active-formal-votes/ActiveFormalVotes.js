@@ -14,6 +14,7 @@ import {
 
 import "./active-formal-votes.scss";
 import Helper from "../../../../utils/Helper";
+import { BALLOT_TYPES } from "../../../../utils/enum";
 
 // eslint-disable-next-line no-undef
 const moment = require("moment");
@@ -151,7 +152,13 @@ class ActiveFormalVotes extends Component {
   clickRow(vote) {
     const { authUser, history } = this.props;
     if (!authUser.is_guest) {
-      history.push(`/app/proposal/${vote.proposal_id}`);
+      if (vote.milestone_id) {
+        history.push(
+          `/app/proposal/${vote.proposal_id}?milestone_id=${vote.milestone_id}`
+        );
+      } else {
+        history.push(`/app/proposal/${vote.proposal_id}`);
+      }
     } else {
       this.props.dispatch(
         setCustomModalData({
@@ -220,8 +227,12 @@ class ActiveFormalVotes extends Component {
           <div className="c-col-3 c-cols">
             <label className="font-size-14">Euros</label>
           </div>
-          <div className="c-col-4 c-cols">
+          <div
+            className="c-col-4 c-cols"
+            onClick={() => this.clickHeader("vote_result_type")}
+          >
             <label className="font-size-14">My Vote</label>
+            {this.renderTriangle("vote_result_type")}
           </div>
           <div className="c-col-5 c-cols">
             <label className="font-size-14">Rep</label>
@@ -337,7 +348,7 @@ class ActiveFormalVotes extends Component {
   renderQuorum(vote) {
     const { settings } = this.props;
     let quorumRate = 0;
-    if (vote.content_type === "simple") {
+    if (["simple", "admin-grant"].includes(vote.content_type)) {
       quorumRate = +settings.quorum_rate_simple;
     } else if (vote.content_type === "grant") {
       quorumRate = +settings.quorum_rate;
@@ -381,7 +392,7 @@ class ActiveFormalVotes extends Component {
           else if (settings.time_unit_formal == "day")
             minsAdd = parseInt(settings.time_formal) * 24 * 60;
         }
-      } else if (vote.content_type == "simple") {
+      } else if (["simple", "admin-grant"].includes(vote.content_type)) {
         if (settings.time_unit_simple && settings.time_simple) {
           if (settings.time_unit_simple == "min")
             minsAdd = parseInt(settings.time_simple);
@@ -433,12 +444,8 @@ class ActiveFormalVotes extends Component {
                 </Tooltip>
               </div>
               <div className="c-col-2 c-cols">
-                <label className="font-size-14 d-block">
-                  {vote.content_type == "grant"
-                    ? "Grant"
-                    : vote.content_type == "simple"
-                    ? "Simple"
-                    : "Milestone"}
+                <label className="font-size-14 d-block text-capitalize">
+                  {BALLOT_TYPES[vote.content_type]}
                 </label>
               </div>
               <div className="c-col-3 c-cols">
@@ -478,12 +485,8 @@ class ActiveFormalVotes extends Component {
                 </Tooltip>
               </div>
               <div className="c-col-2 c-cols">
-                <label className="font-size-14 d-block">
-                  {vote.content_type == "grant"
-                    ? "Grant"
-                    : vote.content_type == "simple"
-                    ? "Simple"
-                    : "Milestone"}
+                <label className="font-size-14 d-block text-capitalize">
+                  {BALLOT_TYPES[vote.content_type]}
                 </label>
               </div>
               <div className="c-col-3 c-cols">

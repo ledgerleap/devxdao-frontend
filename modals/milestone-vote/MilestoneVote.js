@@ -68,6 +68,7 @@ class MilestoneVote extends Component {
   };
 
   submit = (e) => {
+    const submittingMilestones = this.props?.data?.submittingMilestones;
     e.preventDefault();
     const {
       milestoneId,
@@ -104,13 +105,36 @@ class MilestoneVote extends Component {
         () => {
           this.props.dispatch(showCanvas());
         },
-        (res) => {
+        async (res) => {
           this.props.dispatch(hideCanvas());
           if (res && res.success) {
-            this.hideModal();
-            this.props.dispatch(setGrantTableStatus(true));
-            if (this.props.settings.gate_new_milestone_votes === "yes") {
-              this.props.dispatch(setActiveModal("start-milestone"));
+            if (submittingMilestones && submittingMilestones?.length > 1) {
+              const submissionIndex = submittingMilestones.findIndex(
+                (x) => x.milestone.id === milestoneId
+              );
+              this.hideModal();
+              if (submissionIndex < submittingMilestones.length - 1) {
+                await this.props.dispatch(
+                  setMilestoneVoteData(
+                    submittingMilestones[submissionIndex + 1]
+                  )
+                );
+                await this.props.dispatch(
+                  setActiveModal("milestone-vote", { submittingMilestones })
+                );
+              } else {
+                this.hideModal();
+                this.props.dispatch(setGrantTableStatus(true));
+                if (this.props.settings.gate_new_milestone_votes === "yes") {
+                  this.props.dispatch(setActiveModal("start-milestone"));
+                }
+              }
+            } else {
+              this.hideModal();
+              this.props.dispatch(setGrantTableStatus(true));
+              if (this.props.settings.gate_new_milestone_votes === "yes") {
+                this.props.dispatch(setActiveModal("start-milestone"));
+              }
             }
           }
         }
@@ -127,6 +151,7 @@ class MilestoneVote extends Component {
   }
 
   render() {
+    const submittingMilestones = this.props?.data?.submittingMilestones;
     const { milestoneVoteData, authUser } = this.props;
     if (
       !milestoneVoteData ||
@@ -153,8 +178,21 @@ class MilestoneVote extends Component {
       attest_accept_crdao,
     } = this.state;
 
+    let submissionIndex;
+    if (submittingMilestones?.length) {
+      submissionIndex = submittingMilestones.findIndex(
+        (x) => x.milestone.id === milestoneVoteData.milestone.id
+      );
+    }
+
     return (
       <div id="milestone-vote-modal">
+        {submittingMilestones?.length && (
+          <span className="multiple-selected-top">
+            Milestone submission {submissionIndex + 1} of{" "}
+            {submittingMilestones.length} selected
+          </span>
+        )}
         <div className="custom-modal-close" onClick={this.hideModal}>
           <Icon.X />
           <label>Close Window</label>
@@ -256,6 +294,12 @@ class MilestoneVote extends Component {
             </a>
           </div>
         </form>
+        {submittingMilestones?.length && (
+          <span className="multiple-selected-bottom">
+            Milestone submission {submissionIndex + 1} of{" "}
+            {submittingMilestones.length} selected
+          </span>
+        )}
       </div>
     );
   }

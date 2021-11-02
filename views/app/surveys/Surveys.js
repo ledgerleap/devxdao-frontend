@@ -5,6 +5,7 @@ import { Fade } from "react-reveal";
 import "./surveys.scss";
 import ActiveSurveyTab from "./components/tabs/active-survey-tab";
 import WinnersTab from "./components/tabs/winners-tab";
+import DownvotedTab from "./components/tabs/downvoted-tab";
 import CompletedSurveyTab from "./components/tabs/completed-survey-tab";
 
 const mapStateToProps = (state) => {
@@ -48,11 +49,18 @@ class Surveys extends Component {
             >
               Winners
             </li>
+            <li
+              className={tab == "downvoted" ? "active" : ""}
+              onClick={() => this.setState({ tab: "downvoted" })}
+            >
+              Downvoted
+            </li>
           </ul>
         </Fade>
         {tab === "active" && <ActiveSurveyTab />}
         {tab === "completed" && <CompletedSurveyTab />}
         {tab === "winners" && <WinnersTab />}
+        {tab === "downvoted" && <DownvotedTab />}
       </div>
     );
   }

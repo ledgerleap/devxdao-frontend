@@ -6,7 +6,7 @@ import InformalView from "./Informal";
 import InformalDoneView from "./InformalDone";
 import FormalView from "./Formal";
 import FormalDoneView from "./FormalDone";
-
+import qs from "qs";
 import "./vote-alert.scss";
 
 // eslint-disable-next-line no-undef
@@ -22,6 +22,11 @@ const mapStateToProps = (state) => {
 class VoteAlert extends Component {
   renderContent() {
     const { settings, authUser, proposal, onRefresh } = this.props;
+    const {
+      location: { search },
+    } = this.props;
+    const query = qs.parse(search, { ignoreQueryPrefix: true });
+    const milestoneId = query.milestone_id;
 
     // Proposal Check
     if (proposal.status != "approved" && proposal.status != "completed")
@@ -47,7 +52,7 @@ class VoteAlert extends Component {
           mins = parseInt(settings.time_before_op_informal) * 60;
         else if (settings.time_unit_before_op_informal == "day")
           mins = parseInt(settings.time_before_op_informal) * 24 * 60;
-      } else if (proposal.type == "simple") {
+      } else if (["simple", "admin-grant"].includes(proposal.type)) {
         if (settings.time_unit_before_op_informal_simple == "min")
           mins = parseInt(settings.time_before_op_informal_simple);
         else if (settings.time_unit_before_op_informal_simple == "hour")
@@ -84,7 +89,9 @@ class VoteAlert extends Component {
           mins = parseInt(settings.time_informal) * 60;
         else if (settings.time_unit_informal == "day")
           mins = parseInt(settings.time_informal) * 24 * 60;
-      } else if (informalVote.content_type == "simple") {
+      } else if (
+        ["simple", "admin-grant"].includes(informalVote.content_type)
+      ) {
         if (settings.time_unit_simple == "min")
           mins = parseInt(settings.time_simple);
         else if (settings.time_unit_simple == "hour")
@@ -126,7 +133,7 @@ class VoteAlert extends Component {
           mins = parseInt(settings.time_formal) * 60;
         else if (settings.time_unit_formal == "day")
           mins = parseInt(settings.time_formal) * 24 * 60;
-      } else if (formalVote.content_type == "simple") {
+      } else if (["simple", "admin-grant"].includes(formalVote.content_type)) {
         if (settings.time_unit_simple == "min")
           mins = parseInt(settings.time_simple);
         else if (settings.time_unit_simple == "hour")
@@ -159,7 +166,19 @@ class VoteAlert extends Component {
         );
     } else if (proposal.votes.length > 2) {
       // Milestone Votes
-      const milestoneVote = proposal.votes[proposal.votes.length - 1];
+      let milestoneVote;
+      let milestoneVotes;
+      if (milestoneId) {
+        milestoneVotes = proposal.votes.filter(
+          (x) => x.milestone_id == milestoneId
+        );
+        milestoneVote = milestoneVotes[milestoneVotes.length - 1];
+      } else {
+        milestoneVote = proposal.votes[proposal.votes.length - 1];
+        milestoneVotes = proposal.votes.filter(
+          (x) => x.milestone_id == milestoneVote.milestone_id
+        );
+      }
       let mins = 0;
       if (milestoneVote.content_type == "milestone") {
         if (settings.time_unit_milestone == "min")
@@ -185,7 +204,7 @@ class VoteAlert extends Component {
             />
           );
         } else {
-          const informalVote = proposal.votes[proposal.votes.length - 2];
+          const informalVote = milestoneVotes[0];
           return (
             <FormalView
               informalVote={informalVote}

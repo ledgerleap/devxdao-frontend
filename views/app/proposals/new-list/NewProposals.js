@@ -20,6 +20,7 @@ import Helper from "../../../../utils/Helper";
 import { approveProposal, getPendingProposals } from "../../../../utils/Thunk";
 
 import "./new-proposals.scss";
+import { PROPOSAL_TYPES } from "../../../../utils/enum";
 
 // eslint-disable-next-line no-undef
 const moment = require("moment");
@@ -341,8 +342,8 @@ class NewProposals extends Component {
               {this.renderFlag(item)}
             </div>
             <div className="c-col-3 c-cols" onClick={() => this.clickRow(item)}>
-              <label className="font-size-14">
-                {item.type == "grant" ? "Grant" : "Simple"}
+              <label className="font-size-14 text-capitalize">
+                {PROPOSAL_TYPES[item.type]}
               </label>
             </div>
             <div className="c-col-4 c-cols" onClick={() => this.clickRow(item)}>

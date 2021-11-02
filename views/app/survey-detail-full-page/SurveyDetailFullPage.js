@@ -5,6 +5,8 @@ import { Fade } from "react-reveal";
 import { PageHeaderComponent } from "../../../components";
 import "./style.scss";
 import SurveyVotesTable from "../survey-detail/components/tables/survey-votes";
+import qs from "qs";
+import SurveyDownVotesTable from "../survey-detail/components/tables/survey-downvotes";
 import {
   hideCanvas,
   setActiveModal,
@@ -33,13 +35,20 @@ class SurveyDetail extends Component {
       voters: [],
       unvotedUsers: [],
       currentVoter: "",
+      status: "",
     };
   }
 
   componentDidMount() {
     const {
       match: { params },
+      location: { search },
     } = this.props;
+
+    const query = qs.parse(search, { ignoreQueryPrefix: true });
+    let status = query.status;
+    this.setState({ status });
+
     const surveyId = params.id;
     this.setState({ surveyId });
 
@@ -112,7 +121,7 @@ class SurveyDetail extends Component {
 
   render() {
     const { authUser } = this.props;
-    const { surveyData, surveyId } = this.state;
+    const { surveyData, surveyId, status } = this.state;
     if (!authUser || !authUser.id) return null;
     if (!authUser.is_admin) return <Redirect to="/" />;
 
@@ -122,11 +131,20 @@ class SurveyDetail extends Component {
           <PageHeaderComponent title="" />
           <section className="app-infinite-box">
             {surveyId && (
-              <SurveyVotesTable
-                removeFullPageButton
-                id={surveyId}
-                cols={surveyData?.number_response}
-              />
+              <>
+                {status === "upvoted" && (
+                  <SurveyVotesTable
+                    id={surveyId}
+                    cols={surveyData?.number_response}
+                  />
+                )}
+                {status === "downvoted" && (
+                  <SurveyDownVotesTable
+                    id={surveyId}
+                    cols={surveyData?.number_response}
+                  />
+                )}
+              </>
             )}
           </section>
         </Fade>

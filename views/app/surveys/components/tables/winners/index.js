@@ -70,7 +70,7 @@ class WinnersTable extends Component {
 
   startTracking() {
     // IntersectionObserver - We can consider using it later
-    this.$elem = document.getElementById("milestone-in-review-scroll-track");
+    this.$elem = document.getElementById("winners-scroll-track");
     if (this.$elem) this.$elem.addEventListener("scroll", this.trackScroll);
   }
 
@@ -110,7 +110,6 @@ class WinnersTable extends Component {
       sort_key,
       sort_direction,
       page_id,
-      limit: 1,
       ...params,
     };
 
@@ -147,29 +146,32 @@ class WinnersTable extends Component {
       );
     }
 
-    data.forEach((item) => {
+    data.forEach((item, index) => {
       items.push(
-        <li key={`mile_${item.id}`}>
+        <li key={`mile_${item.id}_${index}`}>
           <div className="infinite-row align-items-center d-flex py-3 font-size-14 font-weight-700">
             <div className="c-col-1 c-cols">
               <p>{moment(item.end_time).local().format("M/D/YYYY")}</p>
             </div>
             <div className="c-col-2 c-cols">
-              <p>{item.rank}</p>
+              <p>S{item.survey_id}</p>
             </div>
             <div className="c-col-3 c-cols">
-              <Link to={`/app/proposal/${item.id}`}>
-                <p>S{item.id}</p>
-              </Link>
+              <p>{item.rank}</p>
             </div>
             <div className="c-col-4 c-cols">
+              <Link to={`/app/proposal/${item.id}`}>
+                <p>{item.id}</p>
+              </Link>
+            </div>
+            <div className="c-col-5 c-cols">
               <Tooltip title={item.title} placement="left">
                 <Link to={`/app/proposal/${item.id}`}>
                   <p>S{item.title}</p>
                 </Link>
               </Tooltip>
             </div>
-            <div className="c-col-5 c-cols">
+            <div className="c-col-6 c-cols">
               <p
                 className={
                   item.status.label === "In Discussion"
@@ -198,20 +200,23 @@ class WinnersTable extends Component {
                 <label className="font-size-14">Survey End</label>
               </div>
               <div className="c-col-2 c-cols">
-                <label className="font-size-14">Spot #</label>
+                <label className="font-size-14">Survey #</label>
               </div>
               <div className="c-col-3 c-cols">
-                <label className="font-size-14">Proposal #</label>
+                <label className="font-size-14">Spot #</label>
               </div>
               <div className="c-col-4 c-cols">
-                <label className="font-size-14">Title</label>
+                <label className="font-size-14">Proposal #</label>
               </div>
               <div className="c-col-5 c-cols">
+                <label className="font-size-14">Title</label>
+              </div>
+              <div className="c-col-6 c-cols">
                 <label className="font-size-14">Current Status</label>
               </div>
             </div>
           </div>
-          <div className="infinite-body" id="milestone-in-review-scroll-track">
+          <div className="infinite-body" id="winners-scroll-track">
             {loading ? <GlobalRelativeCanvasComponent /> : this.renderResult()}
           </div>
         </div>

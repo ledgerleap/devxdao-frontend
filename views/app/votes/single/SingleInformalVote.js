@@ -7,7 +7,11 @@ import {
 } from "../../../../components";
 import { hideCanvas, showCanvas } from "../../../../redux/actions";
 import { DECIMALS } from "../../../../utils/Constant";
-import { getSingleProposal, getVAsNotVote } from "../../../../utils/Thunk";
+import {
+  getSingleProposal,
+  getVAsNotVote,
+  downloadVoteResult,
+} from "../../../../utils/Thunk";
 
 import "./single-vote.scss";
 
@@ -84,9 +88,41 @@ class SingleInformalVote extends Component {
     );
   }
 
+  exportCSV(proposal, vote) {
+    this.props.dispatch(
+      downloadVoteResult(
+        proposal.id,
+        vote.id,
+        {},
+        () => {
+          this.props.dispatch(showCanvas());
+        },
+        (res) => {
+          const url = window.URL.createObjectURL(new Blob([res]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", `votes-result-${vote.id}.csv`);
+          document.body.appendChild(link);
+          link.click();
+          this.props.dispatch(hideCanvas());
+        }
+      )
+    );
+  }
+
   renderHeader() {
-    const { proposal } = this.state;
-    return <PageHeaderComponent title={proposal.title} />;
+    const { proposal, vote } = this.state;
+    return (
+      <div className="d-flex justify-content-between mb-2">
+        <PageHeaderComponent title={proposal.title} />
+        <button
+          className="btn btn-primary small"
+          onClick={() => this.exportCSV(proposal, vote)}
+        >
+          Export Vote Details
+        </button>
+      </div>
+    );
   }
 
   renderResult(vote) {

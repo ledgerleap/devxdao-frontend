@@ -4,6 +4,7 @@
 import React, { Component, Fragment, forwardRef } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
+import moment from "moment";
 import * as Icon from "react-feather";
 import Dropzone from "react-dropzone";
 import { Fade } from "react-reveal";
@@ -71,22 +72,24 @@ class ProposalFinalForm extends Component {
       explanation_benefit: ISDEV
         ? `Duis efficitur vestibulum enim, pulvinar porttitor ligula semper id. Nulla quis erat ullamcorper, porta neque id, pretium libero. Nullam bibendum luctus turpis a accumsan. Sed non pharetra nunc, non egestas elit. Nullam mattis est lorem, commodo gravida ipsum gravida sed. Quisque vulputate est mauris. Ut eget odio hendrerit, commodo sem non, sodales sem. Sed ante augue, auctor quis tempor et, sagittis a augue. Morbi tincidunt eros sem, vel porta justo fermentum nec. Curabitur mattis fermentum dolor, et congue nisi feugiat ac. Cras varius quam ac turpis fringilla euismod. Vivamus pharetra metus eleifend nisi bibendum, sit amet rhoncus nulla semper.`
         : "",
-      license: -1,
+      license: ISDEV ? 1 : -1,
       license_other: "",
-      resume: "",
-      extra_notes: "",
+      resume: ISDEV ? "http://example.com" : "",
+      extra_notes: ISDEV
+        ? "Pellentesque cursus tempus dolor, ut ullamcorper"
+        : "",
       memberRequired: true,
       members: [
         {
-          full_name: "",
-          bio: "",
+          full_name: ISDEV ? "developer" : "",
+          bio: ISDEV ? "Duis efficitur vestibulum enim, pulvinar" : "",
           // address: "",
           // city: "",
           // zip: "",
           // country: "",
         },
       ],
-      total_grant: "",
+      total_grant: ISDEV ? "1000" : "",
       grants: {},
       citations: [],
       bank_name: "",
@@ -106,17 +109,17 @@ class ProposalFinalForm extends Component {
       crypto_type: "",
       milestones: [
         {
-          title: "",
-          details: "",
-          criteria: "",
+          title: ISDEV ? `Mile #${getRandomInt(1000)}` : "",
+          details: ISDEV ? "Pellentesque cursus tempus dolor" : "",
+          criteria: ISDEV ? "pulvinar porttitor ligula semper id" : "",
           // kpi: "",
-          grant: "",
-          deadline: "",
-          level_difficulty: "",
-          checked: false,
+          grant: ISDEV ? "1000" : "",
+          deadline: ISDEV ? moment(new Date()).format("M/D/YYYY") : "",
+          level_difficulty: ISDEV ? "1" : "",
+          checked: ISDEV ? true : false,
         },
       ],
-      relationship: [],
+      relationship: ISDEV ? [0, 1, 2, 3, 4] : [],
       received_grant_before: 0,
       grant_id: "",
       has_fulfilled: 0,
@@ -141,17 +144,17 @@ class ProposalFinalForm extends Component {
       code: "",
       codeObject: {},
       codeChecked: false,
-      checked0: false,
-      checked1: false,
-      checked2: false,
-      checked3: false,
-      checked4: false,
-      checked5: false,
-      checked6: false,
-      checked7: false,
-      checkedDeveloper1: false,
-      checkedDeveloper2: false,
-      checkedDeveloper3: false,
+      checked0: ISDEV ? true : false,
+      checked1: ISDEV ? true : false,
+      checked2: ISDEV ? true : false,
+      checked3: ISDEV ? true : false,
+      checked4: ISDEV ? true : false,
+      checked5: ISDEV ? true : false,
+      checked6: ISDEV ? true : false,
+      checked7: ISDEV ? true : false,
+      checkedDeveloper1: ISDEV ? true : false,
+      checkedDeveloper2: ISDEV ? true : false,
+      checkedDeveloper3: ISDEV ? true : false,
       is_company_or_organization: 0,
       name_entity: "",
       entity_country: "",
@@ -167,9 +170,9 @@ class ProposalFinalForm extends Component {
       // yesNo2Exp: "",
       // yesNo3Exp: "",
       // yesNo4Exp: "",
-      agree1: false,
-      agree2: false,
-      agree3: false,
+      agree1: ISDEV ? true : false,
+      agree2: ISDEV ? true : false,
+      agree3: ISDEV ? true : false,
       // formField1: "",
       // formField2: "",
       // purpose: "",
@@ -514,7 +517,7 @@ class ProposalFinalForm extends Component {
       citations,
       relationship: relationship.join(","),
       received_grant_before,
-      grant_id: grant_id.trim(),
+      grant_id: `${grant_id}`.trim(),
       has_fulfilled,
       previous_work: "",
       other_work: "",
@@ -1284,8 +1287,7 @@ class ProposalFinalForm extends Component {
       );
       return;
     }
-
-    if (received_grant_before && !grant_id.trim()) {
+    if (received_grant_before && !`${grant_id}`.trim()) {
       this.props.dispatch(showAlert("Please input grant ID"));
       return;
     }
@@ -1432,7 +1434,7 @@ class ProposalFinalForm extends Component {
       citations,
       relationship: relationship.join(","),
       received_grant_before,
-      grant_id: grant_id.trim(),
+      grant_id: `${grant_id}`.trim(),
       has_fulfilled,
       previous_work: "",
       other_work: "",
@@ -1788,22 +1790,20 @@ class ProposalFinalForm extends Component {
             </div>
           </Fade>
           {memberRequired ? (
-            <Fade distance={"20px"} bottom duration={100} delay={600}>
-              <ProposalTeamView
-                members={members}
-                memberChecked={memberChecked}
-                onUpdate={(members) => {
-                  this.setState({ members }, () => {
-                    this.checkSectionError();
-                  });
-                }}
-                onUpdateChecked={(memberChecked) => {
-                  this.setState({ memberChecked }, () => {
-                    this.checkSectionError();
-                  });
-                }}
-              />
-            </Fade>
+            <ProposalTeamView
+              members={members}
+              memberChecked={memberChecked}
+              onUpdate={(members) => {
+                this.setState({ members }, () => {
+                  this.checkSectionError();
+                });
+              }}
+              onUpdateChecked={(memberChecked) => {
+                this.setState({ memberChecked }, () => {
+                  this.checkSectionError();
+                });
+              }}
+            />
           ) : null}
           <div id="c-status-grant"></div>
           <Fade distance={"20px"} bottom duration={100} delay={600}>
@@ -2051,7 +2051,7 @@ class ProposalFinalForm extends Component {
               )}
             </div>
           </Fade>
-          <Fade distance={"20px"} bottom duration={100} delay={600}>
+          <div>
             <ProposalMilestoneView
               showAction
               total_grant={total_grant}
@@ -2062,7 +2062,7 @@ class ProposalFinalForm extends Component {
                 });
               }}
             />
-          </Fade>
+          </div>
           <div id="c-status-relationship"></div>
           <div className="app-page-header">
             <label>Relationships and previous work</label>

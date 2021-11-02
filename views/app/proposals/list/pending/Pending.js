@@ -10,6 +10,7 @@ import {
 } from "../../../../../utils/Thunk";
 import { GlobalRelativeCanvasComponent } from "../../../../../components";
 import Helper from "../../../../../utils/Helper";
+import { PROPOSAL_TYPES } from "../../../../../utils/enum";
 import {
   setActiveModal,
   setAdminActiveProposalTableStatus,
@@ -347,8 +348,8 @@ class PendingProposals extends Component {
               {this.renderFlag(item)}
             </div>
             <div className="c-col-3 c-cols" onClick={() => this.clickRow(item)}>
-              <label className="font-size-14">
-                {item.type == "grant" ? "Grant" : "Simple"}
+              <label className="font-size-14 text-capitalize">
+                {PROPOSAL_TYPES[item.type]}
               </label>
             </div>
             <div className="c-col-4 c-cols" onClick={() => this.clickRow(item)}>

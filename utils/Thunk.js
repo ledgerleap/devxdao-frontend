@@ -834,6 +834,13 @@ export function updateProposalShared(proposalInfo, params, start, completion) {
         if (!res.success) dispatch(showAlert(res.message));
         if (completion) completion(res);
       });
+    } else if (proposalInfo.type === "admin-grant") {
+      API.updateAdminGrantProposalShared(proposalInfo.id, params).then(
+        (res) => {
+          if (!res.success) dispatch(showAlert(res.message));
+          if (completion) completion(res);
+        }
+      );
     } else {
       API.updateProposalShared(proposalInfo.id, params).then((res) => {
         if (!res.success) dispatch(showAlert(res.message));
@@ -926,6 +933,17 @@ export function approveKYC(userId, start, completion) {
   return function (dispatch) {
     if (start) start();
     API.approveKYC(userId).then((res) => {
+      if (!res.success) dispatch(showAlert(res.message));
+      if (completion) completion(res);
+    });
+  };
+}
+
+// Approve KYC - Admin
+export function getNotSubmitMilestones(proposalId, start, completion) {
+  return function (dispatch) {
+    if (start) start();
+    API.getNotSubmitMilestones(proposalId).then((res) => {
       if (!res.success) dispatch(showAlert(res.message));
       if (completion) completion(res);
     });
@@ -1135,6 +1153,28 @@ export function submitSimpleProposal(params, start, completion) {
   return function (dispatch) {
     if (start) start();
     API.submitSimpleProposal(params).then((res) => {
+      if (!res.success) {
+        dispatch(showAlert(res.message));
+        if (completion) completion(res);
+      } else {
+        dispatch(
+          getMe(
+            () => {},
+            () => {
+              if (completion) completion(res);
+            }
+          )
+        );
+      }
+    });
+  };
+}
+
+// Submit Simple Proposal
+export function submitAdminGrantProposal(params, start, completion) {
+  return function (dispatch) {
+    if (start) start();
+    API.submitAdminGrantProposal(params).then((res) => {
       if (!res.success) {
         dispatch(showAlert(res.message));
         if (completion) completion(res);
@@ -1696,11 +1736,41 @@ export function getWinners(params, start, completion) {
   };
 }
 
+// approveDownVote - Admin
+export function approveDownVote(params, start, completion) {
+  return function () {
+    if (start) start();
+    API.approveDownVote(params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
+// getLosers - Admin
+export function getLosers(params, start, completion) {
+  return function () {
+    if (start) start();
+    API.getLosers(params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
 // getSurveyVotes - Admin
 export function getSurveyVotes(id, params, start, completion) {
   return function () {
     if (start) start();
     API.getSurveyVotes(id, params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
+// getSurveyVotes - Admin
+export function getSurveyDownvotes(id, params, start, completion) {
+  return function () {
+    if (start) start();
+    API.getSurveyDownvotes(id, params).then((res) => {
       if (completion) completion(res);
     });
   };
@@ -1907,6 +1977,50 @@ export function postRepDailyCsv(params, start, completion) {
 }
 
 // Get All Proposal Milestones - Admin
+export function sendKycKangaroo(params, start, completion) {
+  return function (dispatch) {
+    if (start) start();
+    API.sendKycKangaroo(params).then((res) => {
+      if (!res.success) dispatch(showAlert(res.message));
+      if (completion) completion(res);
+    });
+  };
+}
+
+// Get All Proposal Milestones - User
+export function dismissStartKyc(params, start, completion) {
+  return function (dispatch) {
+    if (start) start();
+    API.dismissStartKyc(params).then((res) => {
+      if (!res.success) dispatch(showAlert(res.message));
+      if (completion) completion(res);
+    });
+  };
+}
+
+// Get All Proposal Milestones - Admin
+export function sendKycKangarooByAdmin(params, start, completion) {
+  return function (dispatch) {
+    if (start) start();
+    API.sendKycKangarooByAdmin(params).then((res) => {
+      if (!res.success) dispatch(showAlert(res.message));
+      if (completion) completion(res);
+    });
+  };
+}
+
+// Get All Proposal Milestones - Admin
+export function resendKycKangaroo(params, start, completion) {
+  return function (dispatch) {
+    if (start) start();
+    API.resendKycKangaroo(params).then((res) => {
+      if (!res.success) dispatch(showAlert(res.message));
+      if (completion) completion(res);
+    });
+  };
+}
+
+// Get All Proposal Milestones - Admin
 export function getTimelineProposal(proposalId, params, start, completion) {
   return function () {
     if (start) start();
@@ -1937,11 +2051,83 @@ export function downloadSurveyWinner(params, start, completion) {
 }
 
 // Get All Proposal Milestones - Admin
+export function downloadVoteResult(
+  propsalId,
+  voteId,
+  params,
+  start,
+  completion
+) {
+  return function () {
+    if (start) start();
+    API.downloadVoteResult(propsalId, voteId, params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
+// Get All Proposal Milestones - Admin
+export function downloadSurveyLoser(params, start, completion) {
+  return function () {
+    if (start) start();
+    API.downloadSurveyLoser(params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
+// Get All Proposal Milestones - Admin
 export function downloadCurrentVoteByProposal(id, params, start, completion) {
   return function () {
     if (start) start();
     API.downloadCurrentVoteByProposal(id, params).then((res) => {
       if (completion) completion(res);
+    });
+  };
+}
+
+// Get All Proposal Milestones - Admin
+export function downloadCurrentDownvoteByProposal(
+  id,
+  params,
+  start,
+  completion
+) {
+  return function () {
+    if (start) start();
+    API.downloadCurrentDownvoteByProposal(id, params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
+// Get All Proposal Milestones - Admin
+export function approveComplianceReview(params, start, completion) {
+  return function () {
+    if (start) start();
+    API.approveComplianceReview(params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
+// Get All Proposal Milestones - Admin
+export function resendComplianceReview(params, start, completion) {
+  return function () {
+    if (start) start();
+    API.resendComplianceReview(params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
+// Get All Proposal Milestones - Admin
+export function denyComplianceReview(params, start, completion) {
+  return function (dispatch) {
+    if (start) start();
+    API.denyComplianceReview(params).then((res) => {
+      if (completion) completion(res);
+      if (!res.success) dispatch(showAlert(res.message));
     });
   };
 }
@@ -2195,6 +2381,17 @@ export function submitSurvey(id, body, start, completion) {
   return function (dispatch) {
     if (start) start();
     API.submitSurvey(id, body).then((res) => {
+      if (!res.success) dispatch(showAlert(res.message));
+      if (completion) completion(res);
+    });
+  };
+}
+
+// submitSurvey - User
+export function submitDownvoteSurvey(id, body, start, completion) {
+  return function (dispatch) {
+    if (start) start();
+    API.submitDownvoteSurvey(id, body).then((res) => {
       if (!res.success) dispatch(showAlert(res.message));
       if (completion) completion(res);
     });

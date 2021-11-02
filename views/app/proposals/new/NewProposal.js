@@ -142,6 +142,7 @@ class NewProposal extends Component {
     const { authUser } = this.props;
     if (!authUser || !authUser.id) return null;
     if (authUser.is_admin) return <Redirect to="/" />;
+    // if (!authUser.shuftipro) return <Redirect to="/" />;
 
     return (
       <div id="app-new-proposal-page">

@@ -26,6 +26,12 @@ const SignupView = lazy(() => import("../views/account/signup/Signup"));
 const SignupAdminView = lazy(() =>
   import("../views/account/signup-admin/SignupAdmin")
 );
+const ComplianceApprovedView = lazy(() =>
+  import("../views/account/compliance-approved/ComplianceApproved")
+);
+const ComplianceDenyView = lazy(() =>
+  import("../views/account/compliance-deny/ComplianceDeny")
+);
 
 export default function AppRoutes({ auth }) {
   return (
@@ -56,6 +62,15 @@ export default function AppRoutes({ auth }) {
         <PublicRoute auth={auth} exact path="/register">
           <SignupWelcomeView />
         </PublicRoute>
+        <PublicRoute auth={auth} exact path="/register/form">
+          <SignupView />
+        </PublicRoute>
+        <Route exact path="/compliance-approve-grant/:proposalId">
+          <ComplianceApprovedView />
+        </Route>
+        <Route exact path="/compliance-deny-grant/:proposalId">
+          <ComplianceDenyView />
+        </Route>
         <PublicRoute auth={auth} exact path="/register/form">
           <SignupView />
         </PublicRoute>

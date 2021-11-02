@@ -9,6 +9,7 @@ import PageHeaderComponent from "./page-header/PageHeader";
 import SwitchButton from "./switch-button/SwitchButton";
 import Checkbox from "./check-box/Checkbox";
 import CheckboxX from "./check-box-x/CheckboxX";
+import BasicDatePicker from "./date-picker";
 import { Card, CardHeader, CardBody, CardContext, CardPreview } from "./card";
 
 export {
@@ -26,6 +27,7 @@ export {
   Card,
   CardHeader,
   CardContext,
+  BasicDatePicker,
   CardPreview,
   CardBody,
 };

@@ -45,17 +45,18 @@ class Votes extends Component {
             </li>
           </ul>
         </Fade>
-
-        {tab == "active" ? (
-          <Fragment>
-            <ActiveInformalVotesView />
-            <ActiveFormalVotesView />
-          </Fragment>
-        ) : (
-          <Fragment>
-            <CompletedVotesView />
-          </Fragment>
-        )}
+        <div className="box-votes">
+          {tab == "active" ? (
+            <Fragment>
+              <ActiveInformalVotesView />
+              <ActiveFormalVotesView />
+            </Fragment>
+          ) : (
+            <Fragment>
+              <CompletedVotesView />
+            </Fragment>
+          )}
+        </div>
       </div>
     );
   }

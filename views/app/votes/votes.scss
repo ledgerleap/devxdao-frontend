@@ -1,4 +1,12 @@
 #app-votes-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  .box-votes {
+    flex: 1;
+  min-height: 0;
+  }
   #app-active-informal-votes-section {
     height: 50%;
   }

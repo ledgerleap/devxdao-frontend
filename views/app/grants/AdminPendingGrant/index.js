@@ -179,7 +179,7 @@ class AdminPendingGrant extends Component {
         signatures: {
           render: true,
           title: "Grant Agreement Signatures",
-          data: item.signture_grants,
+          data: item,
         },
       })
     );
@@ -264,6 +264,7 @@ class AdminPendingGrant extends Component {
         (res) => {
           if (res.success) {
             this.props.dispatch(showAlert(`Remind successfully`, "success"));
+            this.reloadTable();
           }
           this.props.dispatch(hideCanvas());
         }
@@ -291,6 +292,7 @@ class AdminPendingGrant extends Component {
               proposals: [...proposals],
             });
             this.props.dispatch(showAlert(`Resend successfully`, "success"));
+            this.reloadTable();
           }
           this.props.dispatch(hideCanvas());
         }
