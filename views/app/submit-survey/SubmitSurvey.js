@@ -176,6 +176,18 @@ class SubmitSurvey extends Component {
     // }
   };
 
+  checkUserInput = () => {
+    const { responses, downvoteResponses, currentSurvey } = this.state;
+    if (currentSurvey?.downvote) {
+      return (
+        +responses.length === +currentSurvey?.number_response &&
+        +downvoteResponses.length === +currentSurvey?.number_response
+      );
+    } else {
+      return +responses.length === +currentSurvey?.number_response;
+    }
+  };
+
   render() {
     const { authUser } = this.props;
     const {
@@ -312,6 +324,7 @@ class SubmitSurvey extends Component {
                         <button
                           className="mt-3 btn btn-primary less-small"
                           onClick={this.submitResponse}
+                          disabled={!this.checkUserInput()}
                         >
                           Submit responses
                         </button>
@@ -354,7 +367,7 @@ class SubmitSurvey extends Component {
                     <p>The winners are listed below.</p>
                     <div className="my-3">
                       {currentSurvey?.survey_ranks
-                        .filter((x) => x.is_winner)
+                        ?.filter((x) => x.is_winner)
                         .map((x, i) => (
                           <p className="py-2" key={i}>
                             {Helper.ordinalSuffixOf(i + 1)} Place -{" "}

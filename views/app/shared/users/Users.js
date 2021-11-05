@@ -272,49 +272,56 @@ class Users extends Component {
         <div className="infinite-headerInner">
           <div
             className="c-col-1 c-cols"
+            onClick={() => this.clickHeader("users.id")}
+          >
+            <label className="font-size-14">User ID</label>
+            {this.renderTriangle("users.id")}
+          </div>
+          <div
+            className="c-col-2 c-cols"
             onClick={() => this.clickHeader("users.email")}
           >
             <label className="font-size-14">Email</label>
             {this.renderTriangle("users.email")}
           </div>
-          <div className="c-col-2 c-cols">
+          <div className="c-col-3 c-cols">
             <label className="font-size-14">Telegram</label>
           </div>
           <div
-            className="c-col-3 c-cols"
+            className="c-col-4 c-cols"
             onClick={() => this.clickHeader("users.first_name")}
           >
             <label className="font-size-14">First Name</label>
             {this.renderTriangle("users.first_name")}
           </div>
           <div
-            className="c-col-4 c-cols"
+            className="c-col-5 c-cols"
             onClick={() => this.clickHeader("users.last_name")}
           >
             <label className="font-size-14">Last Name</label>
             {this.renderTriangle("users.last_name")}
           </div>
           <div
-            className="c-col-5 c-cols"
+            className="c-col-6 c-cols"
             onClick={() => this.clickHeader("users.forum_name")}
           >
             <label className="font-size-14">Forum Name</label>
             {this.renderTriangle("users.forum_name")}
           </div>
-          <div className="c-col-6 c-cols">
+          <div className="c-col-7 c-cols">
             <label className="font-size-14">V%</label>
           </div>
-          <div className="c-col-7 c-cols">
+          <div className="c-col-8 c-cols">
             <label className="font-size-14">Total Rep</label>
           </div>
-          <div className="c-col-8 c-cols">
+          <div className="c-col-9 c-cols">
             <label className="font-size-14">User Type</label>
           </div>
-          <div className="c-col-9 c-cols">
+          <div className="c-col-10 c-cols">
             <label className="font-size-14">Action</label>
           </div>
           <div
-            className="c-col-10 c-cols"
+            className="c-col-11 c-cols"
             onClick={() => this.clickHeader("users.created_at")}
           >
             <label className="font-size-14">Registered Date</label>
@@ -351,24 +358,29 @@ class Users extends Component {
           <div className="infinite-row">
             <div className="c-col-1 c-cols">
               <label className="font-size-14">
-                <b>{item.email}</b>
+                <b>{item.id}</b>
               </label>
             </div>
             <div className="c-col-2 c-cols">
+              <label className="font-size-14">
+                <b>{item.email}</b>
+              </label>
+            </div>
+            <div className="c-col-3 c-cols">
               <label className="font-size-14 text-elipse">
                 {item.telegram}
               </label>
             </div>
-            <div className="c-col-3 c-cols">
+            <div className="c-col-4 c-cols">
               <label className="font-size-14">{item.first_name}</label>
             </div>
-            <div className="c-col-4 c-cols">
+            <div className="c-col-5 c-cols">
               <label className="font-size-14">{item.last_name}</label>
             </div>
-            <div className="c-col-5 c-cols">
+            <div className="c-col-6 c-cols">
               <label className="font-size-14">{item.forum_name}</label>
             </div>
-            <div className="c-col-6 c-cols">
+            <div className="c-col-7 c-cols">
               <label className="font-size-14">
                 {this.renderUserType(item) === "Voting Associate" && (
                   <>
@@ -383,20 +395,20 @@ class Users extends Component {
                 )}
               </label>
             </div>
-            <div className="c-col-7 c-cols">
+            <div className="c-col-8 c-cols">
               <label className="font-size-14">
                 {item.total_rep.toFixed?.(DECIMALS)}
               </label>
             </div>
-            <div className="c-col-8 c-cols">
+            <div className="c-col-9 c-cols">
               <label className="font-size-14">
                 {this.renderUserType(item)}
               </label>
             </div>
-            <div className="c-col-9 c-cols">
+            <div className="c-col-10 c-cols">
               <a className="btn btn-primary extra-small">View</a>
             </div>
-            <div className="c-col-10 c-cols">
+            <div className="c-col-11 c-cols">
               <label className="font-size-14">
                 {moment(item.created_at).local().format("M/D/YYYY")}{" "}
                 {moment(item.created_at).local().format("h:mm A")}

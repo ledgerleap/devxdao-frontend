@@ -24,14 +24,13 @@
   .infinite-contentInner {
     min-width: 1550px;
   }
-
   .c-col-1 {
-    flex: 0 0 calc(100% - 1200px);
-    width: calc(100% - 1200px);
-  }
-  .c-col-2 {
     flex: 0 0 100px;
     width: 100px;
+  }
+  .c-col-2 {
+    flex: 0 0 calc(100% - 1050px);
+    width: calc(100% - 1050px);
   }
   .c-col-3 {
     flex: 0 0 150px;
@@ -46,22 +45,26 @@
     width: 150px;
   }
   .c-col-6 {
-    flex: 0 0 100px;
-    width: 100px;
-  }
-  .c-col-7 {
     flex: 0 0 150px;
     width: 150px;
+  }
+  .c-col-7 {
+    flex: 0 0 100px;
+    width: 100px;
   }
   .c-col-8 {
     flex: 0 0 150px;
     width: 150px;
   }
   .c-col-9 {
+    flex: 0 0 150px;
+    width: 150px;
+  }
+  .c-col-10 {
     flex: 0 0 100px;
     width: 100px;
   }
-  .c-col-10 {
+  .c-col-11 {
     flex: 0 0 150px;
     width: 150px;
   }
