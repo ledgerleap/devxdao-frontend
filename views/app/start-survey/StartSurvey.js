@@ -161,7 +161,11 @@ class StartSurvey extends Component {
                 </button>
               </div>
             </div>
-            <DiscussionProposalsTable hideWonColumn hideFilterWinner />
+            <DiscussionProposalsTable
+              hideWonColumn
+              hideFilterWinner
+              ignorePreviousWinner
+            />
           </section>
         </Fade>
       </div>

@@ -371,6 +371,16 @@ export function getActiveDiscussions(params, start, completion) {
   };
 }
 
+// Get Active Discussions - Shared
+export function getUserProposalRequestPayment(params, start, completion) {
+  return function () {
+    if (start) start();
+    API.getUserProposalRequestPayment(params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
 // Get Completed Discussions - Shared
 export function getCompletedDiscussions(params, start, completion) {
   return function () {
@@ -1192,6 +1202,28 @@ export function submitAdminGrantProposal(params, start, completion) {
   };
 }
 
+// Submit Payment Proposal
+export function submitPaymentProposal(params, start, completion) {
+  return function (dispatch) {
+    if (start) start();
+    API.submitPaymentProposal(params).then((res) => {
+      if (!res.success) {
+        dispatch(showAlert(res.message));
+        if (completion) completion(res);
+      } else {
+        dispatch(
+          getMe(
+            () => {},
+            () => {
+              if (completion) completion(res);
+            }
+          )
+        );
+      }
+    });
+  };
+}
+
 // Submit Milestone
 export function submitMilestone(params, start, completion) {
   return function (dispatch) {
@@ -1886,6 +1918,16 @@ export function getDosFee(params, start, completion) {
   };
 }
 
+// Get Dos Fee - Admin
+export function regeneratePDF(params, start, completion) {
+  return function () {
+    if (start) start();
+    API.regeneratePDF(params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
 // Change Admin Permissions - Admin
 export function changeAdminPermission(params, start, completion) {
   return function () {
@@ -2106,6 +2148,24 @@ export function approveComplianceReview(params, start, completion) {
   return function () {
     if (start) start();
     API.approveComplianceReview(params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
+export function saveUnvotedInformal(params, start, completion) {
+  return function () {
+    if (start) start();
+    API.saveUnvotedInformal(params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
+export function saveUnvotedFormal(params, start, completion) {
+  return function () {
+    if (start) start();
+    API.saveUnvotedFormal(params).then((res) => {
       if (completion) completion(res);
     });
   };

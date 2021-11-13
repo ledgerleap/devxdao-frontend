@@ -41,9 +41,9 @@ export default function AppRoutes({ auth }) {
         <PublicRoute auth={auth} exact path="/public-proposals">
           <PublicProposalsView />
         </PublicRoute>
-        <PublicRoute auth={auth} exact path="/public-proposals/:proposalId">
+        <Route auth={auth} exact path="/public-proposals/:proposalId">
           <PublicProposalDetailView />
-        </PublicRoute>
+        </Route>
         <PublicRoute auth={auth} exact path="/public-milestones/:id">
           <PublicMilestoneDetailView />
         </PublicRoute>

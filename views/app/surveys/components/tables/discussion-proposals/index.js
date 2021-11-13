@@ -95,16 +95,18 @@ class DiscussionProposalsTable extends Component {
       is_winner,
     } = this.state;
     if (loading || calling || finished) return;
+    const { ignorePreviousWinner } = this.props;
 
     const params = {
       sort_key,
       sort_direction,
       search,
       page_id,
-      limit: 10,
+      limit: 20,
     };
 
     if (is_winner) params.is_winner = is_winner ? 1 : 0;
+    if (ignorePreviousWinner) params.ignore_previous_winner = 1;
 
     this.props.dispatch(
       getActiveDiscussions(
@@ -193,7 +195,7 @@ class DiscussionProposalsTable extends Component {
     const { loading, is_winner } = this.state;
     return (
       <>
-        <div className="app-infinite-search-wrap">
+        <div className="app-infinite-search-wrap custom">
           <label className="heading-style">Proposals for surveying</label>
           {!this.props.hideFilterWinner && (
             <SwitchButton

@@ -66,7 +66,7 @@ class StartInformal extends Component {
         )}
         {!!authUser.is_admin && (
           <a className={className} onClick={this.startInformal}>
-            Force Start Informal Vote
+            Begin Informal Voting
           </a>
         )}
         {!authUser.is_admin && settings.gate_new_grant_votes === "no" && (

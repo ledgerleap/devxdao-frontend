@@ -405,7 +405,11 @@ class Formal extends Component {
     let quorum_rate = 0;
     if (formalVote.content_type == "grant")
       quorum_rate = settings.quorum_rate || 0;
-    else if (["simple", "admin-grant"].includes(formalVote.content_type))
+    else if (
+      ["simple", "admin-grant", "advance-payment"].includes(
+        formalVote.content_type
+      )
+    )
       quorum_rate = settings.quorum_rate_simple || 0;
     else quorum_rate = settings.quorum_rate_milestone || 0;
 
@@ -435,7 +439,11 @@ class Formal extends Component {
 
   redirectActiveVote() {
     const { proposal, vote } = this.props;
-    if (["grant", "simple"].includes(vote.content_type)) {
+    if (
+      ["admin-grant", "grant", "simple", "advance-payment"].includes(
+        vote.content_type
+      )
+    ) {
       this.props.history.push(`${proposal.id}/formal-vote`);
     } else if (vote.content_type === "milestone") {
       this.props.history.push(`${proposal.id}/milestone-vote/${vote.id}`);

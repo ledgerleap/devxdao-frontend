@@ -1,11 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import { Switch, Route } from "react-router-dom";
-import {
-  removeActiveModal,
-  saveDraftBeforeLogout,
-  saveUser,
-  setActiveModal,
-} from "../redux/actions";
+import { setActiveModal } from "../redux/actions";
 
 import { useDispatch } from "react-redux";
 // Global
@@ -107,8 +102,14 @@ const NewAdminGrantProposalView = lazy(() =>
   import("../views/app/proposals/new-admin-grant/NewAdminGrantProposal")
 );
 
+// Voting Associate Only
+const NewAdvancePaymentRequestView = lazy(() =>
+  import(
+    "../views/app/proposals/new-advance-payment-request/NewAdvancePaymentRequest"
+  )
+);
+
 import IdleTimer from "react-idle-timer";
-import Helper from "../utils/Helper";
 
 export default function AuthAppRoutes() {
   const dispatch = useDispatch();
@@ -119,13 +120,6 @@ export default function AuthAppRoutes() {
   const handleOnIdle = (event) => {
     console.log("user is idle", event);
     dispatch(setActiveModal("session-timeout"));
-    setTimeout(() => {
-      // logout
-      dispatch(saveDraftBeforeLogout(true));
-      Helper.storeUser({});
-      dispatch(saveUser({}));
-      dispatch(removeActiveModal());
-    }, 60000);
   };
 
   return (
@@ -171,6 +165,11 @@ export default function AuthAppRoutes() {
           <Route
             path="/app/admin-grant-proposal/new"
             component={NewAdminGrantProposalView}
+            exact
+          />
+          <Route
+            path="/app/advance-payment-request/new"
+            component={NewAdvancePaymentRequestView}
             exact
           />
           <Route

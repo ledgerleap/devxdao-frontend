@@ -18,14 +18,19 @@ class SessionTimeout extends Component {
     super(props);
     this.state = {
       timer: 60,
+      counter: 60,
       intervalId: null,
     };
   }
 
   componentDidMount() {
     const intervalIdTemp = setInterval(() => {
-      this.setState({ timer: this.state.timer - 1 });
+      const temp = this.state.counter;
+      this.setState({ counter: temp - 1 });
     }, 1000);
+    setTimeout(() => {
+      this.logout();
+    }, this.state.timer * 1000);
     this.setState({ intervalId: intervalIdTemp });
   }
 
@@ -38,6 +43,9 @@ class SessionTimeout extends Component {
     Helper.storeUser({});
     this.props.dispatch(saveUser({}));
     this.hideModal();
+    setTimeout(() =>
+      alert("You have been logged out for inactivity. Please log back in.")
+    );
   };
 
   hideModal = () => {
@@ -48,13 +56,13 @@ class SessionTimeout extends Component {
     return (
       <div id="session-timeout-modal">
         <h3 className="pb-3">Session Timeout</h3>
-        <p>{`You are being timeout in ${this.state.timer} sec due to inactivity. Please choose to stay signed in or to log off. Otherwise, you will be logged off automatically.`}</p>
+        <p>{`You are being timeout in ${this.state.counter} sec due to inactivity. Please choose to stay signed in or to log off. Otherwise, you will be logged off automatically.`}</p>
         <div className="actions">
           <button className="btn btn-primary-outline" onClick={this.logout}>
             Log off
           </button>
           <button className="btn btn-primary" onClick={this.hideModal}>
-            Stay Logged in ({this.state.timer})
+            Stay Logged in ({this.state.counter})
           </button>
         </div>
       </div>

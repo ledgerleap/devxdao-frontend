@@ -207,15 +207,8 @@ class SingleProposal extends Component {
       timelineList: [],
     };
   }
-
   componentDidMount() {
-    const {
-      match: { params },
-    } = this.props;
-    const proposalId = params.proposalId;
-    this.setState({ proposalId }, () => {
-      this.getProposal();
-    });
+    this.setState({ loading: true });
   }
 
   componentDidUpdate(prevProps) {
@@ -225,6 +218,13 @@ class SingleProposal extends Component {
     ) {
       this.props.dispatch(startInformalAdminTools(false));
       this.getProposal();
+    }
+
+    if (this.state.proposalId != this.props.match.params.proposalId) {
+      console.log(this.props.match.params.proposalId);
+      this.setState({ proposalId: this.props.match.params.proposalId }, () => {
+        this.getProposal();
+      });
     }
   }
 
@@ -311,7 +311,6 @@ class SingleProposal extends Component {
         }
       }
     }
-
     // Not Admin
     return <PageHeaderComponent title={title} />;
   }

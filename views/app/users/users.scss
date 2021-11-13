@@ -1,6 +1,8 @@
 #app-users-page {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
 
   #app-users-page-buttons {
     display: flex;

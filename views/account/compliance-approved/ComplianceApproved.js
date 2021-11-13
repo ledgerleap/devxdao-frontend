@@ -24,6 +24,7 @@ class ComplianceApproved extends Component {
       message: "",
       approvedData: null,
       onboarding: null,
+      compliance_admin: "",
     };
   }
 
@@ -42,16 +43,21 @@ class ComplianceApproved extends Component {
         },
         (res) => {
           this.props.dispatch(hideCanvas());
+          console.log(res);
           if (res.success) {
             this.setState({
               message:
                 "Thank you compliance admin. Your approval has been recorded.",
               approvedData: res.proposal,
               onboarding: res.onboarding,
+              compliance_admin: res.compliance_admin,
             });
           } else {
             this.setState({
-              message: `Error cannot approve! ${res.message}`,
+              message: res.message,
+              approvedData: res.data?.proposal,
+              onboarding: res.data?.onboarding,
+              compliance_admin: res.data?.compliance_admin,
             });
           }
         }
@@ -60,7 +66,7 @@ class ComplianceApproved extends Component {
   }
 
   render() {
-    const { approvedData, message, onboarding } = this.state;
+    const { approvedData, message, onboarding, compliance_admin } = this.state;
     return (
       <div id="signup-welcome-page">
         <div className="custom-container">
@@ -89,7 +95,7 @@ class ComplianceApproved extends Component {
                   </div>
                   <div>
                     <label className="pr-2">Admin email:</label>
-                    <b>{onboarding.admin_email}</b>
+                    <b>{compliance_admin}</b>
                   </div>
                 </div>
               )}

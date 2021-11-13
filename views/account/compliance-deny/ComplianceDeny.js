@@ -85,7 +85,7 @@ class ComplianceDeny extends Component {
               </div>
               <div>
                 <label className="pr-2">Admin email:</label>
-                <b>{onboarding.admin_email}</b>
+                <b>{onboarding.compliance_admin}</b>
               </div>
             </div>
           )}

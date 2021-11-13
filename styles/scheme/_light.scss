@@ -1,4 +1,10 @@
 .app.theme-light {
+  .input-base-custom {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: black;
+  }
+  
   .dynamic-color {
     color: black !important;
   }
@@ -84,6 +90,7 @@
   #app-new-admin-grant-proposal-page,
   #app-single-proposal-detail-section,
   #app-start-survey-page,
+  #app-new-advance-payment-request-page,
   #app-edit-proposal-page {
     .app-page-header {
       border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
@@ -99,6 +106,13 @@
         background: white !important;
         border: 1px solid rgba(0, 0, 0, 0.1) !important;
         color: black !important;
+      }
+    }
+    .c-form-row {
+      .input-base-custom {
+        input.MuiInputBase-input {
+          border: 0 !important;
+        }
       }
     }
 

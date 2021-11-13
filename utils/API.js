@@ -64,9 +64,11 @@ const sendRequest = (
           });
         }
       })
-      .catch(() => {
-        // Needs to login again
-        Helper.removeUser();
+      .catch((e) => {
+        if (+e.response.status === 401) {
+          Helper.removeUser();
+          window.location.href = "/login";
+        }
 
         resolve({
           success: false,
@@ -443,6 +445,16 @@ class API {
   // Submit Simple Proposal - Voting Associate
   static submitAdminGrantProposal(params = {}) {
     return sendRequest("/user/admin-grant-proposal", params, "POST", true);
+  }
+
+  // Submit Simple Proposal - Voting Associate
+  static regeneratePDF(proposal_id) {
+    return sendRequest(
+      `/admin/proposal/${proposal_id}/file-url`,
+      {},
+      "GET",
+      true
+    );
   }
 
   // Submit Proposal Change
@@ -1271,6 +1283,14 @@ class API {
     return sendRequest(`/admin/resend-compliance-review`, params, "POST", true);
   }
 
+  static saveUnvotedInformal(params = {}) {
+    return sendRequest(`/user/show-unvoted-informal`, params, "PUT", true);
+  }
+
+  static saveUnvotedFormal(params = {}) {
+    return sendRequest(`/user/show-unvoted-formal`, params, "PUT", true);
+  }
+
   // Rep - User
   static approveComplianceReview(params = {}) {
     return sendRequest(`/compliance-review/approve`, params, "POST", true);
@@ -1649,6 +1669,16 @@ class API {
           });
         });
     });
+  }
+
+  // Get User's Proposal Request Payment - User
+  static getUserProposalRequestPayment() {
+    return sendRequest(`/user/proposal/request-payment`, {}, "GET", true);
+  }
+
+  // Submit Payment Proposal
+  static submitPaymentProposal(params = {}) {
+    return sendRequest("/user/advance-payment-proposal", params, "POST", true);
   }
 }
 

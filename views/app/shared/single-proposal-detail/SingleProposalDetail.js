@@ -5,6 +5,7 @@ import { Link, withRouter } from "react-router-dom";
 import * as Icon from "react-feather";
 import Helper from "../../../../utils/Helper";
 import Dropzone from "react-dropzone";
+import { PROPOSAL_TYPES } from "../../../../utils/enum";
 import ProposalTeamView from "../../shared/proposal-team/ProposalTeam";
 import ProposalMilestoneView from "../../shared/proposal-milestone/ProposalMilestone";
 import ProposalCitationView from "../../shared/proposal-citation/ProposalCitation";
@@ -1049,8 +1050,13 @@ class SingleProposalDetail extends Component {
     return items;
   }
 
-  renderStatus() {
-    const { proposal } = this.state;
+  renderStatus(proposalParams = null) {
+    let proposal;
+    if (proposalParams) {
+      proposal = proposalParams;
+    } else {
+      proposal = this.state.proposal;
+    }
     if (proposal.status == "pending") return "Pending";
     else if (proposal.status == "payment") {
       if (proposal.dos_paid) return "Payment Clearing";
@@ -1102,6 +1108,26 @@ class SingleProposalDetail extends Component {
     this.props.dispatch(setActiveModal("custom-global-modal"));
   }
 
+  calcOwed(proposal) {
+    console.log(proposal.milestones);
+    const milestoneIds = proposal.milestones.map((x) => x.id);
+    const milestoneIdsPassedFormalVote = proposal.votes
+      .filter(
+        (x) =>
+          milestoneIds.includes(x.milestone_id) &&
+          x.type === "formal" &&
+          x.status === "completed"
+      )
+      .map((x) => x.milestone_id);
+    const total = milestoneIdsPassedFormalVote.reduce((sum, x) => {
+      const mile = proposal.milestones.find((y) => +y.id === +x);
+      return sum + mile.grant;
+    }, 0);
+    const advanceAmount = +proposal.proposal_request_from?.total_grant || 0;
+    console.log(total, advanceAmount);
+    return advanceAmount - total > 0 ? advanceAmount - total : 0;
+  }
+
   renderCoreInfo() {
     const { proposal } = this.state;
     const surveyWon = proposal?.winner;
@@ -1133,7 +1159,9 @@ class SingleProposalDetail extends Component {
         </li>
         <li>
           <label>Proposal Type:</label>
-          <span>{proposal.type == "grant" ? "Grant" : "Simple"}</span>
+          <span className="text-capitalize">
+            {PROPOSAL_TYPES[proposal.type]}
+          </span>
         </li>
         <li>
           <label>OP:</label>
@@ -1187,6 +1215,45 @@ class SingleProposalDetail extends Component {
                 {surveyLose
                   ? `${surveyLose?.rank}/${surveyLose?.survey?.number_response}`
                   : "-"}
+              </span>
+            </li>
+          </>
+        )}
+        {proposal.type === "grant" && (
+          <li>
+            <label>Advance payment requested:</label>
+            <span>{proposal.proposal_request_from ? "Yes" : "No"}</span>
+          </li>
+        )}
+        {proposal.proposal_request_from && (
+          <>
+            <li>
+              <label>Advance amount requested:</label>
+              <span>
+                {Helper.formatPriceNumber(
+                  proposal?.proposal_request_from?.total_grant || 0,
+                  "€"
+                )}
+              </span>
+            </li>
+            <li>
+              <label>Advance amount request link:</label>
+              <span>
+                <Link
+                  to={`/app/proposal/${proposal.proposal_request_from?.id}`}
+                >
+                  #{proposal.proposal_request_from?.id}
+                </Link>
+              </span>
+            </li>
+            <li>
+              <label>Advance status:</label>
+              <span>{this.renderStatus(proposal.proposal_request_from)}</span>
+            </li>
+            <li>
+              <label>Advance amount owed:</label>
+              <span>
+                {Helper.formatPriceNumber(this.calcOwed(proposal) || 0, "€")}
               </span>
             </li>
           </>
@@ -1453,6 +1520,35 @@ class SingleProposalDetail extends Component {
                       </p>
                     </>
                   )}
+                  {["advance-payment"].includes(proposal.type) && (
+                    <>
+                      <label className="font-weight-700 d-block">
+                        {`Select the proposal you are requesting a payment advance for`}
+                      </label>
+                      <p className="text-pre-wrap">
+                        <Link
+                          to={`/app/proposal/${proposal.proposal_request_payment?.id}`}
+                        >
+                          #{proposal.proposal_request_payment?.id}
+                        </Link>
+                      </p>
+                      <label className="font-weight-700 d-block">
+                        {`The portion of this proposal you are requesting as an advance`}
+                      </label>
+                      <p className="text-pre-wrap">
+                        {Helper.formatPriceNumber(
+                          proposal.total_grant || 0,
+                          "€"
+                        )}
+                      </p>
+                      <label className="font-weight-700 d-block">
+                        {`Why are you requesting this amount as an advance`}
+                      </label>
+                      <p className="text-pre-wrap">
+                        {proposal.amount_advance_detail}
+                      </p>
+                    </>
+                  )}
                   {["admin-grant"].includes(proposal.type) && (
                     <>
                       <label className="font-weight-700 d-block">
@@ -1544,6 +1640,37 @@ class SingleProposalDetail extends Component {
                 )}
                 {!!expanded && (
                   <div className="app-simple-section__body">
+                    {["advance-payment"].includes(proposal.type) && (
+                      <>
+                        <label className="font-weight-700 d-block">
+                          {`Select the proposal you are requesting a payment advance for`}
+                        </label>
+                        <p className="text-pre-wrap">
+                          #{proposal.proposal_request_payment?.id}
+                        </p>
+                        <label className="font-weight-700 d-block">
+                          {`The portion of this proposal you are requesting as an advance`}
+                        </label>
+                        <p className="text-pre-wrap">
+                          {Helper.formatPriceNumber(
+                            proposal.total_grant || 0,
+                            "€"
+                          )}
+                        </p>
+                        <label className="font-weight-700 d-block">
+                          {`Why are you requesting this amount as an advance`}
+                        </label>
+                        <p className="text-pre-wrap">
+                          {proposal.amount_advance_detail}
+                        </p>
+                        <label className="font-weight-700 d-block">
+                          Uploaded Files
+                        </label>
+                        <ul id="app-spd-fileList" className="mt-3 mb-4">
+                          {this.renderFiles()}
+                        </ul>
+                      </>
+                    )}
                     {["admin-grant"].includes(proposal.type) && (
                       <>
                         <>

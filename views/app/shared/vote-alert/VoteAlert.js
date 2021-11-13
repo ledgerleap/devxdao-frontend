@@ -52,7 +52,9 @@ class VoteAlert extends Component {
           mins = parseInt(settings.time_before_op_informal) * 60;
         else if (settings.time_unit_before_op_informal == "day")
           mins = parseInt(settings.time_before_op_informal) * 24 * 60;
-      } else if (["simple", "admin-grant"].includes(proposal.type)) {
+      } else if (
+        ["simple", "admin-grant", "advance-payment"].includes(proposal.type)
+      ) {
         if (settings.time_unit_before_op_informal_simple == "min")
           mins = parseInt(settings.time_before_op_informal_simple);
         else if (settings.time_unit_before_op_informal_simple == "hour")
@@ -90,7 +92,9 @@ class VoteAlert extends Component {
         else if (settings.time_unit_informal == "day")
           mins = parseInt(settings.time_informal) * 24 * 60;
       } else if (
-        ["simple", "admin-grant"].includes(informalVote.content_type)
+        ["simple", "admin-grant", "advance-payment"].includes(
+          informalVote.content_type
+        )
       ) {
         if (settings.time_unit_simple == "min")
           mins = parseInt(settings.time_simple);
@@ -133,7 +137,11 @@ class VoteAlert extends Component {
           mins = parseInt(settings.time_formal) * 60;
         else if (settings.time_unit_formal == "day")
           mins = parseInt(settings.time_formal) * 24 * 60;
-      } else if (["simple", "admin-grant"].includes(formalVote.content_type)) {
+      } else if (
+        ["simple", "admin-grant", "advance-payment"].includes(
+          formalVote.content_type
+        )
+      ) {
         if (settings.time_unit_simple == "min")
           mins = parseInt(settings.time_simple);
         else if (settings.time_unit_simple == "hour")

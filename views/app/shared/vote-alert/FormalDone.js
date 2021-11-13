@@ -1,7 +1,15 @@
+/* eslint-disable no-undef */
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter, Link } from "react-router-dom";
-import { setActiveModal, setCustomModalData } from "../../../../redux/actions";
+import {
+  hideCanvas,
+  setActiveModal,
+  setCustomModalData,
+  showCanvas,
+} from "../../../../redux/actions";
+import Helper from "../../../../utils/Helper";
+import { regeneratePDF } from "../../../../utils/Thunk";
 
 const mapStateToProps = (state) => {
   return {
@@ -90,9 +98,37 @@ class FormalDone extends Component {
     }
   }
 
-  render() {
+  generate = () => {
     const { vote } = this.props;
+    this.props.dispatch(
+      regeneratePDF(
+        vote.proposal_id,
+        () => {
+          this.props.dispatch(showCanvas());
+        },
+        (res) => {
+          this.props.dispatch(hideCanvas());
+          console.log(res);
+          if (res.success) {
+            window
+              .open(
+                Helper.joinURL(
+                  process.env.NEXT_PUBLIC_BACKEND_URL,
+                  res.pdf_link_url
+                ),
+                "_blank"
+              )
+              .focus();
+          }
+        }
+      )
+    );
+  };
+
+  render() {
+    const { vote, authUser } = this.props;
     const { forP, againstP } = this.state;
+    const passed = vote?.result === "success" && vote?.status === "completed";
 
     let link = `/app/proposal/${vote.proposal_id}/formal-vote`;
     if (vote.content_type == "milestone")
@@ -101,7 +137,7 @@ class FormalDone extends Component {
     return (
       <div id="app-spd-formal-done-wrap">
         {this.renderAlert()}
-        <div>
+        <div className="flex">
           <div className="app-simple-section">
             <label>
               Formal Vote Results:{" "}
@@ -126,6 +162,11 @@ class FormalDone extends Component {
               <label>{againstP}%</label>
             </div>
           </div>
+          {passed && !!authUser.is_admin && (
+            <button className="ml-4 btn btn-primary" onClick={this.generate}>
+              Generate PDF
+            </button>
+          )}
         </div>
       </div>
     );

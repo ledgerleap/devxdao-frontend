@@ -122,10 +122,19 @@ class Proposals extends Component {
             {authUser.is_member ? (
               <Link
                 to="/app/admin-grant-proposal/new"
-                className="btn btn-primary-outline btn-fluid"
+                className="btn btn-primary-outline btn-fluid mr-2"
               >
                 <Icon.Plus />
                 Admin Grant Proposal
+              </Link>
+            ) : null}
+            {authUser.is_member && authUser.grant_proposal ? (
+              <Link
+                to="/app/advance-payment-request/new"
+                className="btn btn-primary-outline btn-fluid"
+              >
+                <Icon.Plus />
+                Advance payment request
               </Link>
             ) : null}
           </div>

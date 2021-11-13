@@ -24,7 +24,7 @@ const mapStateToProps = () => {
 const ACTIONS = {
   edit: "Edit Proposal",
   withdraw: "Force Withdraw",
-  startInformal: "Force Start Informal Vote",
+  startInformal: "Begin Informal Voting",
 };
 
 class AdminTools extends Component {

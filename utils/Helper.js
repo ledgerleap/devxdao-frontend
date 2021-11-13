@@ -110,16 +110,17 @@ class Helper {
   }
 
   // Format Price String
-  static formatPriceNumber(string, unit = "") {
-    string = this.unformatNumber(string);
-    if (isNaN(string) || string.trim() == "") return "";
-    const temp = string.split(".");
+  static formatPriceNumber(str, unit = "") {
+    if (+str === 0) return `${unit}0`;
+    str = this.unformatNumber(str);
+    if (isNaN(str) || str.trim() == "") return "";
+    const temp = str.split(".");
     if (temp.length > 1) {
       return `${unit}${
         new Intl.NumberFormat("de-DE").format(parseInt(temp[0])) + "," + temp[1]
       }`;
     } else {
-      return `${unit}${new Intl.NumberFormat("de-DE").format(+string)}`;
+      return `${unit}${new Intl.NumberFormat("de-DE").format(+str)}`;
     }
   }
 

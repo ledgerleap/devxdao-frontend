@@ -1,4 +1,9 @@
 .app.theme-metal {
+  .input-base-custom {
+    background: transparent !important;
+    border: 1px solid #666;
+    color: white;
+  }
   #get-help-btn {
     border: 2px solid #51acb8 !important;
     color: #51acb8 !important;
@@ -66,6 +71,7 @@
   #app-new-simple-proposal-page,
   #app-new-admin-grant-proposal-page,
   #app-single-proposal-detail-section,
+  #app-new-advance-payment-request-page,
   #app-edit-proposal-page {
     .app-page-header {
       border-bottom: 1px solid #666 !important;
@@ -76,6 +82,13 @@
         background: transparent !important;
         border: 1px solid #666 !important;
         color: white !important;
+      }
+    }
+    .c-form-row {
+      .input-base-custom {
+        input.MuiInputBase-input {
+          border: 0 !important;
+        }
       }
     }
 

@@ -346,6 +346,7 @@ class SubmitSurvey extends Component {
                       <DiscussionProposalsTable
                         hideWonColumn
                         hideFilterWinner
+                        ignorePreviousWinner
                       />
                     </>
                   )}

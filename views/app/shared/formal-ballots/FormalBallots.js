@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { Fade } from "react-reveal";
 import { getActiveFormalVotes } from "../../../../utils/Thunk";
+import { BALLOT_TYPES } from "../../../../utils/enum";
 import { GlobalRelativeCanvasComponent } from "../../../../components";
 import {
   setActiveModal,
@@ -197,7 +198,9 @@ class FormalBallots extends Component {
         mins = parseInt(settings.time_formal) * 60;
       else if (settings.time_unit_formal == "day")
         mins = parseInt(settings.time_formal) * 24 * 60;
-    } else if (vote.content_type == "simple") {
+    } else if (
+      ["simple", "admin-grant", "advance-payment"].includes(vote.content_type)
+    ) {
       if (settings.time_unit_simple == "min")
         mins = parseInt(settings.time_simple);
       else if (settings.time_unit_simple == "hour")
@@ -242,11 +245,7 @@ class FormalBallots extends Component {
             </div>
             <div className="c-col-2 c-cols">
               <label className="font-size-12 d-block">
-                {vote.content_type == "grant"
-                  ? "Grant"
-                  : vote.content_type == "simple"
-                  ? "Simple"
-                  : "Milestone"}
+                {BALLOT_TYPES[vote.content_type]}
               </label>
             </div>
             <div className="c-col-3 c-cols">

@@ -3,7 +3,11 @@ import * as Icon from "react-feather";
 import Dropzone from "react-dropzone";
 import { Fade } from "react-reveal";
 import { hideCanvas, showAlert, showCanvas } from "../../../../redux/actions";
-import { BasicDatePicker, PageHeaderComponent } from "../../../../components";
+import {
+  BasicDatePicker,
+  PageHeaderComponent,
+  InputMoney,
+} from "../../../../components";
 import { submitAdminGrantProposal, uploadFile } from "../../../../utils/Thunk";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -135,11 +139,12 @@ const NewAdminGrantProposal = () => {
         <Fade distance={"20px"} bottom duration={300} delay={600}>
           <div className="c-form-row">
             <label>{`Euro amount requested`}</label>
-            <input
-              min="0"
-              className="total-grant"
-              {...register("total_grant")}
-              type="number"
+            <Controller
+              control={control}
+              name={"total_grant"}
+              render={({ field: { onChange, value } }) => (
+                <InputMoney value={value} onChange={onChange} />
+              )}
             />
           </div>
         </Fade>

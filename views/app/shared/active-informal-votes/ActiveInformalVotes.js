@@ -4,8 +4,14 @@ import { withRouter } from "react-router-dom";
 import { Fade } from "react-reveal";
 import * as Icon from "react-feather";
 import Tooltip from "@material-ui/core/Tooltip";
-import { GlobalRelativeCanvasComponent } from "../../../../components";
-import { getActiveInformalVotes } from "../../../../utils/Thunk";
+import {
+  GlobalRelativeCanvasComponent,
+  UnvotedFilter,
+} from "../../../../components";
+import {
+  getActiveInformalVotes,
+  saveUnvotedInformal,
+} from "../../../../utils/Thunk";
 import {
   setActiveModal,
   setCustomModalData,
@@ -33,12 +39,14 @@ class ActiveInformalVotes extends Component {
     this.state = {
       loading: false,
       votes: [],
+      totalUnvoted: 0,
       sort_key: "timeLeft",
       sort_direction: "asc",
       search: "",
       page_id: 1,
       calling: false,
       finished: false,
+      show_unvoted: 0,
     };
 
     this.$elem = null;
@@ -48,6 +56,9 @@ class ActiveInformalVotes extends Component {
   componentDidMount() {
     this.startTracking();
     this.getVotes();
+    this.setState({
+      show_unvoted: this.props.authUser?.show_unvoted_informal,
+    });
   }
 
   componentWillUnmount() {
@@ -120,6 +131,7 @@ class ActiveInformalVotes extends Component {
       search,
       page_id,
       votes,
+      show_unvoted,
     } = this.state;
     if (loading || calling || finished) return;
 
@@ -128,6 +140,7 @@ class ActiveInformalVotes extends Component {
       sort_direction,
       search,
       page_id,
+      show_unvoted,
     };
 
     this.props.dispatch(
@@ -145,6 +158,7 @@ class ActiveInformalVotes extends Component {
             calling: false,
             finished,
             votes: [...votes, ...result],
+            totalUnvoted: res.total_unvoted,
           });
         }
       )
@@ -200,7 +214,9 @@ class ActiveInformalVotes extends Component {
   renderQuorum(vote) {
     const { authUser, settings } = this.props;
     let quorumRate = 0;
-    if (["simple", "admin-grant"].includes(vote.content_type)) {
+    if (
+      ["simple", "admin-grant", "advance-payment"].includes(vote.content_type)
+    ) {
       quorumRate = +settings.quorum_rate_simple;
     } else if (vote.content_type === "grant") {
       quorumRate = +settings.quorum_rate;
@@ -394,7 +410,9 @@ class ActiveInformalVotes extends Component {
           else if (settings.time_unit_informal == "day")
             minsAdd = parseInt(settings.time_informal) * 24 * 60;
         }
-      } else if (["simple", "admin-grant"].includes(vote.content_type)) {
+      } else if (
+        ["simple", "admin-grant", "advance-payment"].includes(vote.content_type)
+      ) {
         if (settings.time_unit_simple && settings.time_simple) {
           if (settings.time_unit_simple == "min")
             minsAdd = parseInt(settings.time_simple);
@@ -524,9 +542,16 @@ class ActiveInformalVotes extends Component {
     return <ul>{items}</ul>;
   }
 
+  getUnvoted(val) {
+    this.setState({ show_unvoted: Number(val) }, () => {
+      this.props.dispatch(saveUnvotedInformal({ check: Number(val) }));
+      this.reloadTable();
+    });
+  }
+
   render() {
     const { authUser } = this.props;
-    const { loading, search } = this.state;
+    const { loading, search, show_unvoted, totalUnvoted } = this.state;
     let className = authUser && authUser.is_member ? "member" : "";
     className += " app-infinite-box";
 
@@ -542,6 +567,11 @@ class ActiveInformalVotes extends Component {
                 <Tooltip title={this.renderTooltip()} placement="right-end">
                   <Icon.Info size={16} />
                 </Tooltip>
+                <UnvotedFilter
+                  votes={totalUnvoted}
+                  show_unvoted={show_unvoted}
+                  onChange={(val) => this.getUnvoted(val)}
+                />
               </div>
             )}
 
