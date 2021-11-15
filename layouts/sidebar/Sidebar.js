@@ -18,6 +18,7 @@ import "./sidebar.scss";
 const mapStateToProps = (state) => {
   return {
     theme: state.global.theme,
+    authUser: state.global.authUser,
   };
 };
 
@@ -32,7 +33,16 @@ class Sidebar extends Component {
 
   componentDidMount() {
     const { authUser } = this.props;
-    if (authUser && authUser.id) this.setTabs();
+    if (authUser?.id) {
+      this.setTabs();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { authUser } = this.props;
+    if (prevProps.authUser?.id !== authUser.id) {
+      this.setTabs();
+    }
   }
 
   checkPermission(permissions, type) {
@@ -41,10 +51,10 @@ class Sidebar extends Component {
 
   setTabs() {
     const { authUser } = this.props;
-    let tabs = [];
+    let tabsTemp = [];
     if (authUser.is_admin) {
       // Admin Tabs
-      tabs = [
+      tabsTemp = [
         {
           link: "/app",
           label: "Dashboard",
@@ -199,7 +209,7 @@ class Sidebar extends Component {
       ];
     } else if (authUser.is_guest) {
       // Guest
-      tabs = [
+      tabsTemp = [
         {
           link: "/app",
           label: "Dashboard",
@@ -227,7 +237,7 @@ class Sidebar extends Component {
       ];
     } else if (authUser.is_member) {
       // Voting Associate
-      tabs = [
+      tabsTemp = [
         {
           link: "/app",
           label: "Dashboard",
@@ -297,7 +307,7 @@ class Sidebar extends Component {
       ];
     } else {
       // Partipant
-      tabs = [
+      tabsTemp = [
         {
           link: "/app",
           label: "Dashboard",
@@ -355,7 +365,7 @@ class Sidebar extends Component {
       ];
     }
 
-    this.setState({ tabs });
+    this.setState({ tabs: tabsTemp });
   }
 
   logout = (e) => {
@@ -391,57 +401,55 @@ class Sidebar extends Component {
   renderTabs() {
     const { tabs } = this.state;
     const { history, authUser } = this.props;
-
     let path = "/app";
     if (history && history.location && history.location.pathname)
       path = history.location.pathname;
 
     const items = [];
-
     tabs.forEach((tab, index) => {
-      const subItems = [];
-
-      if (tab.tabs && tab.tabs.length) {
-        tab.tabs.forEach((subTab, subIndex) => {
-          subItems.push(
-            <li
-              key={`subTabItem_${subIndex}`}
-              className={this.getClassName(path, subTab)}
-              hidden={!subTab.isShow}
-            >
-              <a
-                className="position-relative"
-                onClick={(e) => this.clickTab(e, subTab.link)}
-                style={{ color: "inherit" }}
+        const subItems = [];
+  
+        if (tab.tabs && tab.tabs.length) {
+          tab.tabs.forEach((subTab, subIndex) => {
+            subItems.push(
+              <li
+                key={`subTabItem_${subIndex}`}
+                className={this.getClassName(path, subTab)}
+                hidden={!subTab.isShow}
               >
-                {
-                 ((subTab.label === "My Grants" && !!authUser.check_active_grant) ||
-                  (subTab.label === "Survey" && !!authUser.has_survey))
-                  && (
-                    <div className="position-absolute" style={{ left: "29px" }}>
-                      <IconInfo />
-                    </div>
-                  )
-                }
-                <div>{subTab.icon}</div>
-                <span>{subTab.label}</span>
-              </a>
-            </li>
-          );
-        });
-      }
-
-      items.push(
-        <li key={`tabItem_${index}`} className={this.getClassName(path, tab)}>
-          {tab.link ? (
-            <a onClick={(e) => this.clickTab(e, tab.link)}>{tab.label}</a>
-          ) : (
-            <a>{tab.label}</a>
-          )}
-
-          <ul>{subItems}</ul>
-        </li>
-      );
+                <a
+                  className="position-relative"
+                  onClick={(e) => this.clickTab(e, subTab.link)}
+                  style={{ color: "inherit" }}
+                >
+                  {
+                   ((subTab.label === "My Grants" && !!authUser.check_active_grant) ||
+                    (subTab.label === "Survey" && !!authUser.has_survey))
+                    && (
+                      <div className="position-absolute" style={{ left: "29px" }}>
+                        <IconInfo />
+                      </div>
+                    )
+                  }
+                  <div>{subTab.icon}</div>
+                  <span>{subTab.label}</span>
+                </a>
+              </li>
+            );
+          });
+        }
+  
+        items.push(
+          <li key={`tabItem_${index}`} className={this.getClassName(path, tab)}>
+            {tab.link ? (
+              <a onClick={(e) => this.clickTab(e, tab.link)}>{tab.label}</a>
+            ) : (
+              <a>{tab.label}</a>
+            )}
+  
+            <ul>{subItems}</ul>
+          </li>
+        );
     });
 
     items.push(
@@ -471,8 +479,59 @@ class Sidebar extends Component {
     return <Fragment></Fragment>;
   }
 
+  renderRole() {
+    const { authUser } = this.props;
+
+    if (authUser.is_super_admin) return "Super Admin";
+    else if (authUser.is_admin) return "Admin";
+    else if (authUser.is_member) return "Voting Associate";
+    else if (authUser.is_proposer) return "Proposer";
+    else if (authUser.is_participant) return "Associate";
+    else if (authUser.is_guest) return "Guest";
+    return "";
+  }
+
+
+  renderKycStatus() {
+    const { authUser } = this.props;
+    if (!authUser.shuftipro) {
+      return (
+        // <a onClick={this.startKYC} style={{ cursor: "pointer" }}>
+        <span className="text-underline">Not submitted</span>
+        // </a>
+      );
+    }
+    if (authUser.shuftipro?.status === "pending") {
+      return <span>Pending</span>;
+    }
+    if (
+      authUser.shuftipro?.status === "approved" &&
+      authUser.shuftipro?.manual_approved_at
+    ) {
+      return <span>Manual Review</span>;
+    }
+    if (authUser.shuftipro?.status === "approved") {
+      return <span>Accepted</span>;
+    }
+    if (authUser.shuftipro?.status === "error") {
+      return (
+        <span>
+          Error{" "}
+          <a
+            className="text-underline"
+            onClick={this.kycError}
+            style={{ cursor: "pointer" }}
+          >
+            (more info)
+          </a>
+        </span>
+      );
+    }
+    return <span>Submitted</span>;
+  }
+
   render() {
-    const { theme } = this.props;
+    const { theme, authUser } = this.props;
     let logoPath = "/logo-min.png";
     if (theme == "light") logoPath = "/logoblue-min.png";
 
@@ -484,6 +543,25 @@ class Sidebar extends Component {
               <img src={logoPath} alt="" />
             </a>
             <Icon.X onClick={this.hideSidebar} />
+          </div>
+          <div className="user-info-box">
+            <Fade distance={"20px"} bottom duration={500} delay={400}>
+              <p className="welcome-message">Welcome, {authUser?.first_name}</p>
+            </Fade>
+            <Fade distance={"20px"} bottom duration={500} delay={500}>
+              <>
+                <label className="txt">
+                  User Type: <span>{this.renderRole()}</span>
+                </label><br/>
+                {!authUser?.is_super_admin && !authUser?.is_admin && (
+                  <>
+                    <label className="txt">KYC status: {this.renderKycStatus()}</label><br/>
+                    <label className="txt">Forum name: <span>{authUser?.profile?.forum_name}</span></label><br/>
+                    <label className="txt">User ID: <span>{authUser?.id}</span></label>
+                  </>
+                )}
+              </>
+            </Fade>
           </div>
           <div id="app-sidebar-tabs">{this.renderTabs()}</div>
           {this.renderExtra()}

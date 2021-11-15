@@ -1,7 +1,7 @@
 import React, { Component, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { withRouter } from "react-router-dom";
-import { GlobalRelativeCanvasComponent } from "../../../components";
+import { GlobalRelativeCanvasComponent, Checkbox } from "../../../components";
 import {
   checkUserActiveGrant,
   getGrantsShared,
@@ -32,12 +32,23 @@ const mapStateToProps = (state) => {
   };
 };
 
-const GrantItem = ({ item, clickRow, renderStatus }) => {
+const GrantItem = ({ item, clickRow }) => {
   const [expand, setExpand] = useState();
   const dispatch = useDispatch();
 
   const canMultipleSubmit = () => {
-    return item.proposal?.milestones?.some((x) => !x.submitted_time);
+    return (
+      item.status == "active" &&
+      item.proposal?.milestones?.some((x) => {
+        if (!x.submitted_time) {
+          return true;
+        } else {
+          const latestReview =
+            x.milestone_review[x.milestone_review.length - 1];
+          return ["denied"].includes(latestReview?.status);
+        }
+      })
+    );
   };
 
   const multipleSubmit = () => {
@@ -99,6 +110,9 @@ const GrantItem = ({ item, clickRow, renderStatus }) => {
   const renderAction = (mile, index) => {
     const latestReview =
       mile.milestone_review[mile.milestone_review.length - 1];
+    if (item?.status === "pending") {
+      return "-";
+    }
     if (!mile.submitted_time) {
       return (
         <a
@@ -152,6 +166,42 @@ const GrantItem = ({ item, clickRow, renderStatus }) => {
       }
     }
     return "-";
+  };
+
+  const showSignDialog = () => {
+    if (
+      !item.proposal ||
+      !item.signture_grants ||
+      !item.signture_grants.length
+    ) {
+      return null;
+    }
+    dispatch(
+      setCustomModalData({
+        signatures: {
+          render: true,
+          title: "Grant Agreement Signatures",
+          data: item,
+          hideGrantLogs: true,
+        },
+      })
+    );
+    dispatch(setActiveModal("custom-global-modal"));
+  };
+
+  const renderStatus = (item) => {
+    if (item.status == "pending")
+      return (
+        <p
+          className="font-size-14 color-primary"
+          onClick={() => showSignDialog()}
+        >
+          Awaiting signatures
+        </p>
+      );
+    else if (item.status == "active")
+      return <p className="font-size-14 color-info">Active</p>;
+    return <p className="font-size-14 color-success">Completed</p>;
   };
 
   return (
@@ -240,6 +290,7 @@ class MemberGrant extends Component {
       proposals: [],
       sort_key: "final_grant.id",
       sort_direction: "desc",
+      hide_completed: 0,
       search: "",
       page_id: 1,
       calling: false,
@@ -346,6 +397,7 @@ class MemberGrant extends Component {
       search,
       page_id,
       proposals,
+      hide_completed,
     } = this.state;
     if (loading || calling || finished) return;
 
@@ -356,6 +408,8 @@ class MemberGrant extends Component {
       page_id,
       limit: 20,
     };
+
+    if (hide_completed) params.hide_completed = hide_completed;
 
     this.props.dispatch(
       getGrantsShared(
@@ -436,37 +490,8 @@ class MemberGrant extends Component {
     );
   }
 
-  showSignDialog(item) {
-    if (
-      !item.proposal ||
-      !item.signture_grants ||
-      !item.signture_grants.length
-    ) {
-      return null;
-    }
-    this.props.dispatch(
-      setCustomModalData({
-        signatures: {
-          render: true,
-          title: "Grant Agreement Signatures",
-          data: item.signture_grants,
-        },
-      })
-    );
-    this.props.dispatch(setActiveModal("custom-global-modal"));
-  }
-
-  renderStatus(item) {
-    if (item.status == "pending")
-      return <p className="font-size-14 color-primary">Pending</p>;
-    else if (item.status == "active")
-      return <p className="font-size-14 color-info">Active</p>;
-    return <p className="font-size-14 color-success">Completed</p>;
-  }
-
   clickRow = (item) => {
     const { history, authUser } = this.props;
-    console.log(123123);
     if (authUser.is_admin || authUser.is_member)
       history.push(`/app/proposal/${item.proposal_id}`);
     else if (authUser.is_participant) {
@@ -496,11 +521,7 @@ class MemberGrant extends Component {
     proposals.forEach((item) => {
       items.push(
         <li key={`proposal_${item.id}`}>
-          <GrantItem
-            item={item}
-            clickRow={this.clickRow}
-            renderStatus={this.renderStatus}
-          />
+          <GrantItem item={item} clickRow={this.clickRow} />
         </li>
       );
     });
@@ -529,6 +550,12 @@ class MemberGrant extends Component {
       this.reloadTable();
     });
   }
+
+  hideCompletedGrants = (val) => {
+    this.setState({ hide_completed: +val }, () => {
+      this.reloadTable();
+    });
+  };
 
   renderHeader() {
     return (
@@ -570,7 +597,7 @@ class MemberGrant extends Component {
   }
 
   render() {
-    const { loading, search } = this.state;
+    const { loading, search, hide_completed } = this.state;
     const { authUser } = this.props;
     if (!authUser || !authUser.id) return null;
 
@@ -581,6 +608,11 @@ class MemberGrant extends Component {
       >
         <div className="app-infinite-search-wrap">
           <label>Grants</label>
+          <Checkbox
+            value={hide_completed}
+            onChange={(val) => this.hideCompletedGrants(val)}
+            text={`Hide completed`}
+          />
           <input
             type="text"
             value={search}

@@ -55,10 +55,14 @@ class ActiveFormalVotes extends Component {
 
   componentDidMount() {
     this.startTracking();
-    this.getVotes();
-    this.setState({
-      show_unvoted: this.props.authUser?.show_unvoted_formal,
-    });
+    this.setState(
+      {
+        show_unvoted: this.props.authUser?.show_unvoted_formal,
+      },
+      () => {
+        this.getVotes();
+      }
+    );
   }
 
   componentWillUnmount() {
@@ -138,8 +142,11 @@ class ActiveFormalVotes extends Component {
       sort_direction,
       search,
       page_id,
-      show_unvoted,
     };
+
+    if (show_unvoted) {
+      params.show_unvoted = show_unvoted;
+    }
 
     this.props.dispatch(
       getActiveFormalVotes(

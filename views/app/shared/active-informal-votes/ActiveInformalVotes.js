@@ -55,10 +55,14 @@ class ActiveInformalVotes extends Component {
 
   componentDidMount() {
     this.startTracking();
-    this.getVotes();
-    this.setState({
-      show_unvoted: this.props.authUser?.show_unvoted_informal,
-    });
+    this.setState(
+      {
+        show_unvoted: this.props.authUser?.show_unvoted_informal,
+      },
+      () => {
+        this.getVotes();
+      }
+    );
   }
 
   componentWillUnmount() {
@@ -140,8 +144,11 @@ class ActiveInformalVotes extends Component {
       sort_direction,
       search,
       page_id,
-      show_unvoted,
     };
+
+    if (show_unvoted) {
+      params.show_unvoted = show_unvoted;
+    }
 
     this.props.dispatch(
       getActiveInformalVotes(

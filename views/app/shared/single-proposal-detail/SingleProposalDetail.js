@@ -1811,6 +1811,16 @@ class SingleProposalDetail extends Component {
                         )}
                       </>
                     )}
+                    {proposal.type === "simple" && (
+                      <>
+                        <label className="font-weight-700 d-block">
+                          Uploaded Files
+                        </label>
+                        <ul id="app-spd-fileList" className="mt-3 mb-4">
+                          {this.renderFiles()}
+                        </ul>
+                      </>
+                    )}
                     {proposal.type === "grant" && (
                       <>
                         <>

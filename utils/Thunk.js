@@ -2093,7 +2093,7 @@ export function downloadSurveyWinner(params, start, completion) {
 }
 
 // Get All Proposal Milestones - Admin
-export function downloadVoteResult(
+export function downloadVoteResultCSV(
   propsalId,
   voteId,
   params,
@@ -2102,7 +2102,22 @@ export function downloadVoteResult(
 ) {
   return function () {
     if (start) start();
-    API.downloadVoteResult(propsalId, voteId, params).then((res) => {
+    API.downloadVoteResultCSV(propsalId, voteId, params).then((res) => {
+      if (completion) completion(res);
+    });
+  };
+}
+
+export function downloadVoteResultPDF(
+  propsalId,
+  voteId,
+  params,
+  start,
+  completion
+) {
+  return function () {
+    if (start) start();
+    API.downloadVoteResultPDF(propsalId, voteId, params).then((res) => {
       if (completion) completion(res);
     });
   };

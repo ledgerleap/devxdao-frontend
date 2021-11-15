@@ -1324,9 +1324,20 @@ class API {
   }
 
   // Accounting - Admin
-  static downloadVoteResult(proposalId, voteId, params = {}) {
+  static downloadVoteResultCSV(proposalId, voteId, params = {}) {
     return sendRequest(
       `/shared/proposal/${proposalId}/vote/${voteId}/vote-result/export-csv`,
+      params,
+      "GET",
+      true,
+      "blob"
+    );
+  }
+
+  // Accounting - Admin
+  static downloadVoteResultPDF(proposalId, voteId, params = {}) {
+    return sendRequest(
+      `/shared/proposal/${proposalId}/vote/${voteId}/vote-result/export-pdf`,
       params,
       "GET",
       true,

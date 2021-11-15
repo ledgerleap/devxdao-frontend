@@ -1,4 +1,16 @@
 .app-sidebar-wrap {
+  .user-info-box {
+    padding-left: 58px;
+    padding-right: 10px;
+    padding-bottom: 20px;
+    font-size: 12px;
+    .welcome-message {
+      font-size: 20px;
+    }
+    .txt span {
+      color: #9B64E6 !important;
+    }
+  }
   width: 265px;
   height: 100%;
   position: fixed;
@@ -11,7 +23,7 @@
 
   #app-sidebar-logo {
     margin-top: 30px;
-    margin-bottom: 98px;
+    margin-bottom: 30px;
     a {
       display: block;
       width: 150px;
@@ -107,5 +119,11 @@
     .app-sidebar-wrap {
       transform: translate3d(0px, 0px, 0px);
     }
+  }
+}
+
+.app.theme-metal {
+  .txt span {
+    color: #1cb0bb !important;
   }
 }

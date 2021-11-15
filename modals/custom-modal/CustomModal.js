@@ -1029,7 +1029,7 @@ class CustomModal extends Component {
 
   // Render Signatures
   renderSignatures(modalData) {
-    const { data } = modalData;
+    const { data, hideGrantLogs } = modalData;
     return (
       <Fragment>
         <h2>{modalData.title}</h2>
@@ -1056,8 +1056,12 @@ class CustomModal extends Component {
             );
           })}
         </ul>
-        <h2>Remind / Resend / API tracker table</h2>
-        <GrantLogsTable grantLogs={data?.grant_logs} />
+        {!hideGrantLogs && (
+          <>
+            <h2>Remind / Resend / API tracker table</h2>
+            <GrantLogsTable grantLogs={data?.grant_logs} />
+          </>
+        )}
         {/* {data?.grant_logs.length === 0 && <p>No item</p>}
         <ul>
           {data?.grant_logs?.map((item, index) => {

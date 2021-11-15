@@ -8,9 +8,10 @@ import {
 import { hideCanvas, showCanvas } from "../../../../redux/actions";
 import { DECIMALS } from "../../../../utils/Constant";
 import {
-  downloadVoteResult,
+  downloadVoteResultCSV,
   getSingleProposal,
   getVAsNotVote,
+  downloadVoteResultPDF,
 } from "../../../../utils/Thunk";
 
 import "./single-vote.scss";
@@ -99,7 +100,7 @@ class SingleMilestoneVote extends Component {
 
   exportCSV(proposal, vote) {
     this.props.dispatch(
-      downloadVoteResult(
+      downloadVoteResultCSV(
         proposal.id,
         vote.id,
         {},
@@ -119,17 +120,47 @@ class SingleMilestoneVote extends Component {
     );
   }
 
+  exportPDF(proposal, vote) {
+    this.props.dispatch(
+      downloadVoteResultPDF(
+        proposal.id,
+        vote.id,
+        {},
+        () => {
+          this.props.dispatch(showCanvas());
+        },
+        (res) => {
+          const url = window.URL.createObjectURL(new Blob([res]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", `votes-result-${vote.id}.pdf`);
+          document.body.appendChild(link);
+          link.click();
+          this.props.dispatch(hideCanvas());
+        }
+      )
+    );
+  }
+
   renderHeader() {
     const { proposal, vote } = this.state;
     return (
       <div className="d-flex justify-content-between mb-2">
         <PageHeaderComponent title={proposal.title} />
-        <button
-          className="btn btn-primary small"
-          onClick={() => this.exportCSV(proposal, vote)}
-        >
-          Export Vote Details
-        </button>
+        <div>
+          <button
+            className="btn btn-primary small mr-2"
+            onClick={() => this.exportPDF(proposal, vote)}
+          >
+            Export Vote Detail PDF
+          </button>
+          <button
+            className="btn btn-primary small"
+            onClick={() => this.exportCSV(proposal, vote)}
+          >
+            Export Vote Detail CSV
+          </button>
+        </div>
       </div>
     );
   }

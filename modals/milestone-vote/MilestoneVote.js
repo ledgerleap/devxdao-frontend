@@ -150,6 +150,25 @@ class MilestoneVote extends Component {
     this.setState({ [key]: e ? 1 : 0 });
   }
 
+  isDisabledSubmit = () => {
+    const {
+      attest_accepted_definition,
+      attest_accepted_pm,
+      attest_submitted_accounting,
+      attest_work_adheres,
+      attest_submitted_corprus,
+      attest_accept_crdao,
+    } = this.state;
+    return (
+      !attest_accepted_definition ||
+      !attest_accepted_pm ||
+      !attest_submitted_accounting ||
+      !attest_work_adheres ||
+      !attest_submitted_corprus ||
+      !attest_accept_crdao
+    );
+  };
+
   render() {
     const submittingMilestones = this.props?.data?.submittingMilestones;
     const { milestoneVoteData, authUser } = this.props;
@@ -285,8 +304,13 @@ class MilestoneVote extends Component {
               text="I attest that I will accept the review of the CRdao or another associated work reviewer assigned by the ETA/DxD."
             />
           </div>
+
           <div id="milestone-vote-modal__buttons">
-            <button type="submit" className="btn btn-success">
+            <button
+              type="submit"
+              className="btn btn-success"
+              disabled={this.isDisabledSubmit()}
+            >
               Submit
             </button>
             <a className="btn btn-primary" onClick={this.hideModal}>

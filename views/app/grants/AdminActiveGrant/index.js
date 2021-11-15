@@ -384,7 +384,7 @@ class AdminActiveGrant extends Component {
                   to={`/app/user/${item.proposal.user_id}`}
                   style={{ color: "inherit" }}
                 >
-                  {item.proposal.user.email}
+                  {item.user?.email}
                 </Link>
               </p>
             </div>

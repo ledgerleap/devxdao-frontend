@@ -82,6 +82,16 @@
     }
   }
 
+  @media all and (min-width: 1200px) {
+    .app-content-wrap {
+      .app-content-body {
+        #app-content__header {
+          display: none;
+        }
+      }
+    }
+  }
+
   @media all and (max-width: 767px) {
     .app-content-wrap {
       overflow-x: hidden;

@@ -198,7 +198,7 @@ const NewAdminGrantProposal = () => {
         </Fade>
         <div className="mt-5">
           <button
-            disabled={!formState.isValid || files.length === 0}
+            disabled={!formState.isValid}
             type="submit"
             className="btn btn-primary large"
           >
