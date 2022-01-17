@@ -11,6 +11,14 @@ const mapStateToProps = (state) => {
 };
 
 class Topics extends Component {
+  componentDidMount() {
+    const { authUser } = this.props;
+
+    if (!authUser.is_member && !authUser.is_admin) {
+      this.props.history.push("/app");
+    }
+  }
+
   render() {
     const { authUser } = this.props;
     if (!authUser || !authUser.id) return null;

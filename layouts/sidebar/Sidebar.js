@@ -228,12 +228,6 @@ class Sidebar extends Component {
               isShow: true,
             },
             {
-              link: "/app/topics",
-              label: "Topics",
-              icon: <ForumIcon size={20} />,
-              isShow: true,
-            },
-            {
               link: "/app/votes",
               label: "Votes",
               icon: <Icon.CheckSquare size={20} />,
@@ -335,12 +329,6 @@ class Sidebar extends Component {
               link: "/app/discussions",
               label: "Discussions",
               icon: <Icon.FileText size={20} />,
-              isShow: true,
-            },
-            {
-              link: "/app/topics",
-              label: "Topics",
-              icon: <ForumIcon size={20} />,
               isShow: true,
             },
             {
