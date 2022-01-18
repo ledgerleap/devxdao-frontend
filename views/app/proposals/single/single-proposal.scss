@@ -34,8 +34,15 @@
       }
     }
   }
+  .right-side {
+    width: 650px;
+
+    @media (max-width: 992px) {
+      width: 100%;
+    }
+  }
   .expand {
-    width: 450px;
+    width: inherit;
     .dot {
       margin: 0 25px;
     }
